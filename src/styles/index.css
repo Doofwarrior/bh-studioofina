@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --studio-bg: #0f0f11;
+    --studio-surface: #1a1a1e;
+    --studio-surface-elevated: #222228;
+    --studio-border: #2a2a30;
+    --studio-text: #e4e4e7;
+    --studio-text-muted: #a1a1aa;
+    --studio-text-subtle: #71717a;
+    --studio-accent: #f59e0b;
+    --studio-accent-hover: #d97706;
+    --studio-danger: #ef4444;
+    --studio-success: #22c55e;
+  }
+
+  body {
+    @apply bg-[var(--studio-bg)] text-[var(--studio-text)] antialiased;
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+  }
+
+  * {
+    @apply border-[var(--studio-border)];
+  }
+}
+
+@layer components {
+  .studio-card {
+    @apply rounded-lg border bg-[var(--studio-surface)] p-4;
+  }
+
+  .studio-button {
+    @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors;
+    @apply bg-[var(--studio-accent)] text-black hover:bg-[var(--studio-accent-hover)];
+  }
+
+  .studio-button-secondary {
+    @apply inline-flex items-center justify-center rounded-md border px-4 py-2 text-sm font-medium transition-colors;
+    @apply bg-transparent text-[var(--studio-text)] hover:bg-[var(--studio-surface-elevated)];
+  }
+
+  .studio-input {
+    @apply rounded-md border bg-[var(--studio-surface)] px-3 py-2 text-sm text-[var(--studio-text)];
+    @apply placeholder:text-[var(--studio-text-subtle)] focus:outline-none focus:ring-1 focus:ring-[var(--studio-accent)];
+  }
+
+  .studio-sidebar {
+    @apply w-64 border-r bg-[var(--studio-surface)] p-4;
+  }
+}
