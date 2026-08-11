@@ -13,7 +13,6 @@
  * - Auto-backs up any file before overwriting
  */
 
-import { z } from "zod";
 import {
   ProjectManifestSchema,
   type ProjectManifest,
@@ -46,11 +45,20 @@ function lsSet(key: string, value: unknown): void {
   localStorage.setItem(`${LS_PREFIX}${key}`, JSON.stringify(value));
 }
 
-function lsRemove(key: string): void {
-  localStorage.removeItem(`${LS_PREFIX}${key}`);
-}
-
 // ─── Directory Handle Management ───
+
+declare global {
+  interface Window {
+    showDirectoryPicker(options?: {
+      mode?: "readwrite" | "read";
+      startIn?: "documents" | "desktop" | "downloads" | "music" | "pictures" | "videos";
+    }): Promise<FileSystemDirectoryHandle>;
+  }
+  interface FileSystemDirectoryHandle {
+    requestPermission(descriptor: { mode: "readwrite" | "read" }): Promise<"granted" | "denied">;
+    entries(): AsyncIterableIterator<[string, FileSystemDirectoryHandle | FileSystemFileHandle]>;
+  }
+}
 
 let workspaceHandle: FileSystemDirectoryHandle | null = null;
 
@@ -81,7 +89,6 @@ async function saveDirectoryHandle(
   handle: FileSystemDirectoryHandle
 ): Promise<void> {
   try {
-    const keys = await navigator.storage.getDirectory();
     // Store handle in IndexedDB for persistence across sessions
     const db = await openDB();
     const tx = db.transaction("handles", "readwrite");
@@ -98,16 +105,22 @@ async function restoreDirectoryHandle(): Promise<FileSystemDirectoryHandle | nul
     const db = await openDB();
     const tx = db.transaction("handles", "readonly");
     const store = tx.objectStore("handles");
-    const handle = await store.get("workspace");
+
+    const handle = await new Promise<FileSystemDirectoryHandle | null>((resolve) => {
+      const request = store.get("workspace");
+      request.onsuccess = () => resolve(request.result as FileSystemDirectoryHandle);
+      request.onerror = () => resolve(null);
+    });
+
     db.close();
 
     if (handle) {
       // Verify permission
-      const permission = await (handle as FileSystemDirectoryHandle).requestPermission({
+      const permission = await handle.requestPermission({
         mode: "readwrite",
       });
       if (permission === "granted") {
-        return handle as FileSystemDirectoryHandle;
+        return handle;
       }
     }
     return null;
@@ -128,13 +141,6 @@ function openDB(): Promise<IDBDatabase> {
       }
     };
   });
-}
-
-// ─── Path Helpers ───
-
-function getWorkspacePath(): string {
-  const configured = localStorage.getItem("bh-studio:workspace-path");
-  return configured || "~/BH-Studio-Workspace";
 }
 
 // ─── Project Operations ───
