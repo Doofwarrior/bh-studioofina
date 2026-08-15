@@ -6,7 +6,7 @@ export const APP_NAME = "BH Studio";
 export const APP_VERSION = "1.0.0";
 
 // ─── Workspace ───
-export const DEFAULT_WORKSPACE_PATH = "~/BH-Studio-Workspace";
+export const DEFAULT_WORKSPACE_PATH = "~/QAH-Workspace";
 export const PROJECT_MANIFEST_FILENAME = "project.json";
 
 // ─── Storage ───
