@@ -144,7 +144,7 @@ async function restoreDirectoryHandle(): Promise<FileSystemDirectoryHandle | nul
 
 function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open("BHStudioStorage", 1);
+    const request = indexedDB.open("QAHStudioStorage", 1);
     request.onerror = () => reject(request.error);
     request.onsuccess = () => resolve(request.result);
     request.onupgradeneeded = () => {
