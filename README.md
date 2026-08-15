@@ -53,7 +53,7 @@ npm run dev
 
 ## Workspace
 
-The workspace lives outside this repository. Default: `~/BH-Studio-Workspace/` (or whatever folder you select).
+The workspace lives outside this repository. Default: `~/QAH-Workspace/` (or whatever folder you select).
 Configure the path in Settings on first launch.
 
 ## AI Provider
