@@ -19,10 +19,10 @@ export function SettingsPage() {
   const [wsError, setWsError] = useState("");
 
   const [ollamaUrl, setOllamaUrl] = useState(
-    localStorage.getItem("bh-studio:ollama-base-url") || DEFAULT_OLLAMA_BASE_URL
+    localStorage.getItem("qah:ollama-base-url") || DEFAULT_OLLAMA_BASE_URL
   );
   const [ollamaModel, setOllamaModel] = useState(
-    localStorage.getItem("bh-studio:ollama-model") || DEFAULT_OLLAMA_MODEL
+    localStorage.getItem("qah:ollama-model") || DEFAULT_OLLAMA_MODEL
   );
   const [availableModels, setAvailableModels] = useState<OllamaModel[]>([]);
   const [connectionStatus, setConnectionStatus] = useState<
@@ -64,8 +64,8 @@ export function SettingsPage() {
   };
 
   const handleSaveOllama = () => {
-    localStorage.setItem("bh-studio:ollama-base-url", ollamaUrl);
-    localStorage.setItem("bh-studio:ollama-model", ollamaModel);
+    localStorage.setItem("qah:ollama-base-url", ollamaUrl);
+    localStorage.setItem("qah:ollama-model", ollamaModel);
     checkOllama();
   };
 
