@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Badge } from "@/components/ui/Badge";
 import { useWorkspace } from "@/hooks/useWorkspace";
 import { aiBridge } from "@/ai/aiBridge";
 import type { OllamaModel } from "@/types/ollama";
@@ -13,8 +12,11 @@ import {
 import { FolderOpen, Server, RefreshCw, CheckCircle, XCircle } from "lucide-react";
 
 export function SettingsPage() {
-  const { workspacePath, configureWorkspace } = useWorkspace();
-  const [newWorkspacePath, setNewWorkspacePath] = useState(workspacePath);
+  const { workspacePath, isConfigured, connectWorkspace } = useWorkspace();
+  const [wsStatus, setWsStatus] = useState<
+    "idle" | "connecting" | "connected" | "cancelled" | "error"
+  >("idle");
+  const [wsError, setWsError] = useState("");
 
   const [ollamaUrl, setOllamaUrl] = useState(
     localStorage.getItem("bh-studio:ollama-base-url") || DEFAULT_OLLAMA_BASE_URL
@@ -47,8 +49,18 @@ export function SettingsPage() {
     }
   };
 
-  const handleSaveWorkspace = () => {
-    configureWorkspace(newWorkspacePath);
+  const handleConnectWorkspace = async () => {
+    setWsStatus("connecting");
+    setWsError("");
+    try {
+      const ok = await connectWorkspace();
+      setWsStatus(ok ? "connected" : "cancelled");
+    } catch (err) {
+      setWsStatus("error");
+      setWsError(
+        err instanceof Error ? err.message : "Workspace access failed"
+      );
+    }
   };
 
   const handleSaveOllama = () => {
@@ -63,16 +75,28 @@ export function SettingsPage() {
 
       <Card title="Workspace" subtitle="Where your projects are stored">
         <div className="space-y-4">
-          <Input
-            label="Workspace Path"
-            value={newWorkspacePath}
-            onChange={(e) => setNewWorkspacePath(e.target.value)}
-            placeholder="~/BH-Studio-Workspace"
-          />
-          <Button onClick={handleSaveWorkspace}>
+          <p className="text-sm text-[var(--studio-text-muted)]">
+            {isConfigured
+              ? `Connected: ${workspacePath || "workspace folder"}`
+              : "No workspace connected. Connect a folder to enable filesystem storage for your projects."}
+          </p>
+          <Button onClick={handleConnectWorkspace} disabled={wsStatus === "connecting"}>
             <FolderOpen size={16} className="mr-2" />
-            Save Workspace Path
+            {isConfigured ? "Reconnect Workspace Folder" : "Connect Workspace Folder"}
           </Button>
+          {wsStatus === "connecting" && (
+            <p className="text-sm text-[var(--studio-text-muted)]">
+              Requesting folder access…
+            </p>
+          )}
+          {wsStatus === "cancelled" && (
+            <p className="text-sm text-[var(--studio-text-subtle)]">
+              Workspace selection was cancelled or denied.
+            </p>
+          )}
+          {wsStatus === "error" && (
+            <p className="text-sm text-[var(--studio-danger)]">{wsError}</p>
+          )}
         </div>
       </Card>
 

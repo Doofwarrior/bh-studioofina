@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { formatDate } from "@/utils/formatDate";
 import type { ProjectManifest } from "@/types/project";
+import { SkillPanel } from "./SkillPanel";
 import {
   ArrowLeft,
   Folder,
@@ -74,6 +75,9 @@ export function ProjectDetailPage({
           </p>
         </Card>
       )}
+
+      {/* Skill Invocation */}
+      <SkillPanel projectId={project.id} projectSlug={project.slug} />
 
       {/* Folders Grid */}
       <div>

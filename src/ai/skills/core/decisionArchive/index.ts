@@ -11,7 +11,7 @@ import type { SkillRequest, SkillResponse, SkillManifest, AIBridge } from "@/typ
 import { buildDecisionArchivePrompt } from "@/ai/promptTemplates/decisionArchive";
 import { DecisionArchiveOutputSchema } from "./schema";
 
-export const skillManifest: SkillManifest = {
+export const skillManifest = {
   id: "core.decisionArchive",
   name: "Decision Archive",
   category: "core",
@@ -27,7 +27,7 @@ export const skillManifest: SkillManifest = {
   outputSchema: DecisionArchiveOutputSchema,
   requiresProject: true,
   autoLog: true,
-};
+} satisfies SkillManifest;
 
 export async function execute(
   request: SkillRequest,

@@ -1,21 +1,68 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import type { ExportPackage } from "@/types/export";
-import { EXPORT_FORMATS, PLATFORMS } from "@/lib/constants";
+import { ExportPackageSchema } from "@/types/export";
+import { EXPORT_FORMATS } from "@/lib/constants";
+import { useProjectContext } from "@/app/providers/ProjectProvider";
+import { writeFile, listFiles, readFile } from "@/lib/storage";
 import { Package, Plus, Download } from "lucide-react";
 
 export function ExportsPage() {
+  const { activeProject } = useProjectContext();
   const [exports, setExports] = useState<ExportPackage[]>([]);
   const [isCreating, setIsCreating] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
-  const handleCreateExport = (name: string, format: string) => {
+  // Load persisted export records from the active project's storage whenever
+  // the active project changes. Reuses the existing generic storage API
+  // (listFiles/readFile); no new storage function required.
+  useEffect(() => {
+    let cancelled = false;
+    if (!activeProject) {
+      setExports([]);
+      setLoadError(null);
+      return;
+    }
+    (async () => {
+      try {
+        const files = await listFiles(activeProject.slug, "exports");
+        const loaded: ExportPackage[] = [];
+        for (const file of files) {
+          try {
+            const text = await readFile(activeProject.slug, "exports", file);
+            if (!text) continue;
+            const parsed = ExportPackageSchema.safeParse(JSON.parse(text));
+            if (parsed.success) loaded.push(parsed.data);
+          } catch {
+            // Skip malformed export record; do not fail the whole load.
+          }
+        }
+        if (!cancelled) {
+          setExports(loaded);
+          setLoadError(null);
+        }
+      } catch {
+        if (!cancelled) {
+          setLoadError("Failed to load exports from project storage.");
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [activeProject?.slug]);
+
+  const handleCreateExport = async (name: string, format: string) => {
+    if (!activeProject) return;
+    setSaveError(null);
     const newExport: ExportPackage = {
       id: crypto.randomUUID(),
-      projectId: "global", // TODO(v1.0): Link to active project
+      projectId: activeProject.id,
       name,
       format: format as ExportPackage["format"],
       createdAt: new Date().toISOString(),
@@ -25,8 +72,19 @@ export function ExportsPage() {
         platformVersions: [],
       },
     };
-    setExports((prev) => [...prev, newExport]);
-    setIsCreating(false);
+    try {
+      await writeFile(
+        activeProject.slug,
+        "exports",
+        `${newExport.id}.json`,
+        JSON.stringify(newExport, null, 2)
+      );
+      setExports((prev) => [...prev, newExport]);
+      setIsCreating(false);
+    } catch {
+      // Keep the modal open so the user's input is preserved.
+      setSaveError("Failed to save export to project storage.");
+    }
   };
 
   return (
@@ -35,17 +93,33 @@ export function ExportsPage() {
         <h1 className="text-2xl font-bold text-[var(--studio-text)]">
           Exports
         </h1>
-        <Button onClick={() => setIsCreating(true)}>
+        <Button onClick={() => setIsCreating(true)} disabled={!activeProject}>
           <Plus size={16} className="mr-2" />
           New Export
         </Button>
       </div>
 
+      {!activeProject && (
+        <div className="rounded-md border border-amber-800/30 bg-amber-900/10 p-3 text-sm text-amber-400">
+          No active project. Open a project to save and load exports.
+        </div>
+      )}
+
+      {loadError && (
+        <p className="text-sm text-[var(--studio-danger)]">{loadError}</p>
+      )}
+
       {exports.length === 0 ? (
         <div className="py-12 text-center text-[var(--studio-text-muted)]">
           <Package size={32} className="mx-auto mb-3 opacity-50" />
-          <p className="text-sm">No exports yet.</p>
-          <p className="text-xs">Create an export package for your content.</p>
+          <p className="text-sm">
+            {activeProject ? "No exports yet." : "Open a project to view its exports."}
+          </p>
+          <p className="text-xs">
+            {activeProject
+              ? "Create an export package for your content."
+              : "Export packages are stored per project."}
+          </p>
         </div>
       ) : (
         <div className="grid gap-4">
@@ -80,9 +154,16 @@ export function ExportsPage() {
 
       <CreateExportModal
         isOpen={isCreating}
-        onClose={() => setIsCreating(false)}
+        onClose={() => {
+          setIsCreating(false);
+          setSaveError(null);
+        }}
         onCreate={handleCreateExport}
       />
+
+      {saveError && (
+        <p className="text-sm text-[var(--studio-danger)]">{saveError}</p>
+      )}
     </div>
   );
 }

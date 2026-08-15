@@ -15,6 +15,8 @@
 
 import {
   ProjectManifestSchema,
+  DecisionEntrySchema,
+  PromptAssetSchema,
   type ProjectManifest,
   type DecisionEntry,
   type PromptAsset,
@@ -55,6 +57,7 @@ declare global {
     }): Promise<FileSystemDirectoryHandle>;
   }
   interface FileSystemDirectoryHandle {
+    name: string;
     requestPermission(descriptor: { mode: "readwrite" | "read" }): Promise<"granted" | "denied">;
     entries(): AsyncIterableIterator<[string, FileSystemDirectoryHandle | FileSystemFileHandle]>;
   }
@@ -83,6 +86,16 @@ export async function requestWorkspaceAccess(): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+// Non-gesture accessors so the UI can reflect the actual workspace connection
+// state without re-invoking the native directory picker.
+export function isWorkspaceConnected(): boolean {
+  return workspaceHandle !== null;
+}
+
+export function getWorkspaceName(): string | null {
+  return workspaceHandle?.name ?? null;
 }
 
 async function saveDirectoryHandle(
@@ -152,6 +165,11 @@ export async function createProject(
 
   // Save to localStorage (primary store for v1.0 browser build)
   const projects = lsGet<ProjectManifest[]>("projects") || [];
+
+  if (projects.some((p) => p.slug === manifest.slug)) {
+    throw new Error(`Project with slug already exists: ${manifest.slug}`);
+  }
+
   projects.push(manifest);
   lsSet("projects", projects);
 
@@ -258,11 +276,9 @@ export async function writeProjectManifest(
 }
 
 export async function listProjects(): Promise<ProjectManifest[]> {
-  // Try localStorage first
-  const projects = lsGet<ProjectManifest[]>("projects") || [];
-
-  // Validate all entries
-  const validProjects = projects.filter((p) => {
+  // Validate localStorage entries
+  const localProjects = lsGet<ProjectManifest[]>("projects") || [];
+  const validLocal = localProjects.filter((p) => {
     try {
       ProjectManifestSchema.parse(p);
       return true;
@@ -271,10 +287,38 @@ export async function listProjects(): Promise<ProjectManifest[]> {
     }
   });
 
-  // Update cache
-  validProjects.forEach((p) => projectCache.set(p.id, p));
+  // When a workspace is connected, reconcile with the durable on-disk store.
+  if (workspaceHandle) {
+    try {
+      const projectsDir = await workspaceHandle.getDirectoryHandle("projects");
+      const fsProjects: ProjectManifest[] = [];
+      for await (const [, entry] of projectsDir.entries()) {
+        if (entry.kind !== "directory") continue;
+        try {
+          const fileHandle = await entry.getFileHandle(PROJECT_MANIFEST_FILENAME);
+          const file = await fileHandle.getFile();
+          const parsed = ProjectManifestSchema.safeParse(JSON.parse(await file.text()));
+          if (parsed.success) fsProjects.push(parsed.data);
+        } catch {
+          // Ignore malformed/partial project manifests.
+        }
+      }
 
-  return validProjects;
+      // Prefer filesystem manifests; dedupe by id (fallback to slug).
+      const merged = new Map<string, ProjectManifest>();
+      for (const p of [...validLocal, ...fsProjects]) {
+        merged.set(p.id || `slug:${p.slug}`, p);
+      }
+      const result = Array.from(merged.values());
+      result.forEach((p) => projectCache.set(p.id, p));
+      return result;
+    } catch {
+      // FS enumeration failed; fall back to localStorage only.
+    }
+  }
+
+  validLocal.forEach((p) => projectCache.set(p.id, p));
+  return validLocal;
 }
 
 export async function deleteProject(projectSlug: string): Promise<void> {
@@ -298,6 +342,15 @@ export async function deleteProject(projectSlug: string): Promise<void> {
     (p) => p.slug === projectSlug
   );
   if (toRemove) projectCache.delete(toRemove.id);
+
+  // Remove project-scoped localStorage keys (decisions, prompts, files)
+  const prefix = `${LS_PREFIX}project:${projectSlug}:`;
+  for (let i = localStorage.length - 1; i >= 0; i--) {
+    const k = localStorage.key(i);
+    if (k?.startsWith(prefix)) {
+      localStorage.removeItem(k);
+    }
+  }
 }
 
 // ─── File Operations ───
@@ -404,7 +457,9 @@ export async function appendDecision(
   projectSlug: string,
   entry: DecisionEntry
 ): Promise<void> {
-  const key = `project:${projectSlug}:decisions:log`;
+  DecisionEntrySchema.parse(entry);
+
+  const key = `project:${projectSlug}:decisions:decisions.json`;
   const existing = lsGet<DecisionEntry[]>(key) || [];
   existing.push(entry);
   lsSet(key, existing);
@@ -424,7 +479,9 @@ export async function savePrompt(
   projectSlug: string,
   prompt: PromptAsset
 ): Promise<void> {
-  const key = `project:${projectSlug}:prompts:${prompt.id}`;
+  PromptAssetSchema.parse(prompt);
+
+  const key = `project:${projectSlug}:prompts:${prompt.id}.json`;
   lsSet(key, prompt);
 
   await writeFile(
