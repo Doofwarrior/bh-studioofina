@@ -32,7 +32,7 @@ const projectCache = new Map<string, ProjectManifest>();
 
 // ─── localStorage Helpers ───
 
-const LS_PREFIX = "bh-studio:";
+const LS_PREFIX = "qah:";
 
 function lsGet<T>(key: string): T | null {
   try {
