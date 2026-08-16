@@ -11,7 +11,7 @@ import { RouterProvider } from "react-router-dom";
 import { WorkspaceProvider } from "@/app/providers/WorkspaceProvider";
 import { ProjectProvider } from "@/app/providers/ProjectProvider";
 import { createAppRouter } from "@/app/routes";
-import { requestWorkspaceAccess } from "@/lib/storage";
+import { requestWorkspaceAccess, selectWorkspaceDirectory } from "@/lib/storage";
 import "@/styles/index.css";
 
 // Router is created once at module level - never recreated on re-render
@@ -168,7 +168,7 @@ function WorkspaceSetup({ onReady }: { onReady: () => void }) {
     setIsRequesting(true);
     setError("");
     try {
-      const granted = await requestWorkspaceAccess();
+      const granted = await selectWorkspaceDirectory();
       if (granted) {
         onReady();
       } else {

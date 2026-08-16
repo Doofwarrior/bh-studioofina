@@ -74,15 +74,7 @@ export async function requestWorkspaceAccess(): Promise<boolean> {
       return true;
     }
 
-    // Request new directory
-    const handle = await window.showDirectoryPicker({
-      mode: "readwrite",
-      startIn: "documents",
-    });
-
-    workspaceHandle = handle;
-    await saveDirectoryHandle(handle);
-    return true;
+    return await selectWorkspaceDirectory();
   } catch {
     return false;
   }
@@ -96,6 +88,21 @@ export function isWorkspaceConnected(): boolean {
 
 export function getWorkspaceName(): string | null {
   return workspaceHandle?.name ?? null;
+}
+
+export async function selectWorkspaceDirectory(): Promise<boolean> {
+  try {
+    const handle = await window.showDirectoryPicker({
+      mode: "readwrite",
+      startIn: "documents",
+    });
+
+    workspaceHandle = handle;
+    await saveDirectoryHandle(handle);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 async function saveDirectoryHandle(
