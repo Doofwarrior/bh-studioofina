@@ -59,6 +59,7 @@ declare global {
   interface FileSystemDirectoryHandle {
     name: string;
     requestPermission(descriptor: { mode: "readwrite" | "read" }): Promise<"granted" | "denied">;
+    queryPermission(descriptor: { mode: "readwrite" | "read" }): Promise<"granted" | "denied" | "prompt">;
     entries(): AsyncIterableIterator<[string, FileSystemDirectoryHandle | FileSystemFileHandle]>;
   }
 }
@@ -136,9 +137,7 @@ async function restoreDirectoryHandle(): Promise<FileSystemDirectoryHandle | nul
 
     if (handle) {
       // Verify permission
-      const permission = await handle.requestPermission({
-        mode: "readwrite",
-      });
+      const permission = await handle.queryPermission({ mode: "readwrite" });
       if (permission === "granted") {
         return handle;
       }
