@@ -10,7 +10,7 @@ import { z } from "zod";
 import type { SkillRequest, SkillResponse, SkillManifest, AIBridge } from "@/types/ai";
 import { VisualDirectorOutputSchema } from "./schema";
 
-export const skillManifest: SkillManifest = {
+export const skillManifest = {
   id: "islamic.visualDirector",
   name: "Visual Director",
   category: "islamic",
@@ -27,7 +27,7 @@ export const skillManifest: SkillManifest = {
   outputSchema: VisualDirectorOutputSchema,
   requiresProject: true,
   autoLog: false,
-};
+} satisfies SkillManifest;
 
 export async function execute(
   request: SkillRequest,
@@ -79,8 +79,7 @@ function buildVisualDirectorPrompt(params: {
   if (params.previousDecisions?.length) {
     parts.push(`
 ## Previous Decisions
-${params.previousDecisions.join("
-")}`);
+${params.previousDecisions.join("\n")}`);
   }
 
   parts.push(`
@@ -96,6 +95,5 @@ ${params.previousDecisions.join("
 Respond in valid JSON matching the described schema.
 `);
 
-  return parts.join("
-");
+  return parts.join("\n");
 }

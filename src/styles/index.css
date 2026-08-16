@@ -2,52 +2,162 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ═══════════════════════════════════════════════════════════════
+   QAL'AT AL-HAQQ — Global Visual Foundation v1.0
+   ═══════════════════════════════════════════════════════════════ */
+
 @layer base {
   :root {
-    --studio-bg: #0f0f11;
-    --studio-surface: #1a1a1e;
-    --studio-surface-elevated: #222228;
-    --studio-border: #2a2a30;
-    --studio-text: #e4e4e7;
-    --studio-text-muted: #a1a1aa;
-    --studio-text-subtle: #71717a;
-    --studio-accent: #f59e0b;
-    --studio-accent-hover: #d97706;
-    --studio-danger: #ef4444;
-    --studio-success: #22c55e;
+    /* ── QAL'AT AL-HAQQ primary design tokens ── */
+    --qah-bg: #050505;
+    --qah-surface: #0a0a0a;
+    --qah-surface-raised: #111111;
+    --qah-border: #1a1a1a;
+    --qah-border-strong: #2a2a2a;
+    --qah-text: #e8e8e8;
+    --qah-text-muted: #888888;
+    --qah-text-subtle: #555555;
+    --qah-accent: #b8a050;
+    --qah-accent-dim: #7a6b35;
+    --qah-warning: #c4a030;
+    --qah-danger: #a04040;
+    --qah-success: #4a7a4a;
+
+    /* ── Legacy compatibility ──
+       Existing components reference --studio-* variables.
+       Mapping them to qah values ensures instant visual
+       migration without touching component files. */
+    --studio-bg: var(--qah-bg);
+    --studio-surface: var(--qah-surface);
+    --studio-surface-elevated: var(--qah-surface-raised);
+    --studio-border: var(--qah-border);
+    --studio-text: var(--qah-text);
+    --studio-text-muted: var(--qah-text-muted);
+    --studio-text-subtle: var(--qah-text-subtle);
+    --studio-accent: var(--qah-accent);
+    --studio-accent-hover: var(--qah-accent-dim);
+    --studio-danger: var(--qah-danger);
+    --studio-success: var(--qah-success);
+  }
+
+  html {
+    @apply bg-qah-bg text-qah-text;
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   body {
-    @apply bg-[var(--studio-bg)] text-[var(--studio-text)] antialiased;
+    @apply bg-qah-bg text-qah-text min-h-screen;
     font-family: "Inter", system-ui, -apple-system, sans-serif;
   }
 
+  /* Default border color on all elements — preserves original behavior */
   * {
-    @apply border-[var(--studio-border)];
+    @apply border-[var(--qah-border)];
+  }
+
+  /* ── Reduced motion — respect user preference ── */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
 @layer components {
+  /* ── QAL'AT AL-HAQQ Component Primitives ── */
+
+  .qah-panel {
+    @apply bg-qah-surface border border-qah-border;
+  }
+
+  .qah-panel-raised {
+    @apply bg-qah-surface-raised border border-qah-border-strong;
+  }
+
+  .qah-btn {
+    @apply inline-flex items-center justify-center border border-qah-border-strong bg-qah-surface-raised px-4 py-2 text-sm font-medium text-qah-text transition-colors hover:bg-qah-border-strong hover:text-qah-accent focus:outline-none focus:ring-1 focus:ring-qah-accent;
+  }
+
+  .qah-btn-primary {
+    @apply inline-flex items-center justify-center border border-qah-accent-dim bg-qah-accent-dim px-4 py-2 text-sm font-medium text-qah-bg transition-colors hover:bg-qah-accent hover:border-qah-accent focus:outline-none focus:ring-1 focus:ring-qah-accent;
+  }
+
+  .qah-input {
+    @apply border border-qah-border bg-qah-surface px-3 py-2 text-sm text-qah-text placeholder:text-qah-text-subtle focus:outline-none focus:ring-1 focus:ring-qah-accent focus:border-qah-accent;
+  }
+
+  .qah-label {
+    @apply text-xs font-mono uppercase tracking-wider text-qah-text-subtle;
+  }
+
+  .qah-divider {
+    @apply h-px bg-qah-border;
+  }
+
+  /* ── Legacy .studio-* compatibility mapping ──
+     Existing consumers are automatically migrated to
+     the QAL'AT AL-HAQQ visual language without file changes. */
+
   .studio-card {
-    @apply rounded-lg border bg-[var(--studio-surface)] p-4;
+    @apply qah-panel p-4;
   }
 
   .studio-button {
-    @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors;
-    @apply bg-[var(--studio-accent)] text-black hover:bg-[var(--studio-accent-hover)];
+    @apply qah-btn-primary;
   }
 
   .studio-button-secondary {
-    @apply inline-flex items-center justify-center rounded-md border px-4 py-2 text-sm font-medium transition-colors;
-    @apply bg-transparent text-[var(--studio-text)] hover:bg-[var(--studio-surface-elevated)];
+    @apply qah-btn;
   }
 
   .studio-input {
-    @apply rounded-md border bg-[var(--studio-surface)] px-3 py-2 text-sm text-[var(--studio-text)];
-    @apply placeholder:text-[var(--studio-text-subtle)] focus:outline-none focus:ring-1 focus:ring-[var(--studio-accent)];
+    @apply qah-input;
   }
 
   .studio-sidebar {
-    @apply w-64 border-r bg-[var(--studio-surface)] p-4;
+    @apply w-64 border-r border-qah-border bg-qah-surface p-4;
+  }
+}
+
+@layer utilities {
+  .font-arabic {
+    font-family: "Noto Sans Arabic", system-ui, sans-serif;
+  }
+
+  .font-mono-technical {
+    font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+  }
+
+  .text-accent-glow {
+    text-shadow: 0 0 20px rgba(184, 160, 80, 0.15);
+  }
+
+  .border-glow {
+    box-shadow: 0 0 0 1px rgba(184, 160, 80, 0.1);
+  }
+
+  /* Subtle grid texture for technical surfaces */
+  .grid-texture {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  /* Subtle scanline texture */
+  .scanline {
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(255, 255, 255, 0.008) 2px,
+      rgba(255, 255, 255, 0.008) 4px
+    );
   }
 }

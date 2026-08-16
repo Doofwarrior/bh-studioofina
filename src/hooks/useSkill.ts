@@ -5,7 +5,7 @@
  */
 
 import { useState, useCallback } from "react";
-import type { SkillRequest, SkillResponse, AIBridge } from "@/types/ai";
+import type { SkillRequest, SkillResponse } from "@/types/ai";
 import { getSkill } from "@/ai/skills";
 import { aiBridge } from "@/ai/aiBridge";
 

@@ -11,7 +11,7 @@ import type { SkillRequest, SkillResponse, SkillManifest, AIBridge } from "@/typ
 import { buildReferenceIntelligencePrompt } from "@/ai/promptTemplates/referenceIntelligence";
 import { ReferenceIntelligenceOutputSchema } from "./schema";
 
-export const skillManifest: SkillManifest = {
+export const skillManifest = {
   id: "core.referenceIntelligence",
   name: "Reference Intelligence",
   category: "core",
@@ -26,7 +26,7 @@ export const skillManifest: SkillManifest = {
   outputSchema: ReferenceIntelligenceOutputSchema,
   requiresProject: true,
   autoLog: true,
-};
+} satisfies SkillManifest;
 
 export async function execute(
   request: SkillRequest,

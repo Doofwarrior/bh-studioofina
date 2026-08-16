@@ -1,5 +1,5 @@
 /**
- * BH Studio v1.0 — AI Bridge (Ollama)
+ * QAL'AT AL-HAQQ v1.0 - AI Bridge (Ollama)
  *
  * The SOLE LLM GATEWAY in the entire codebase.
  */
@@ -16,10 +16,10 @@ import {
 function getOllamaConfig(): OllamaConfig {
   return {
     baseUrl:
-      localStorage.getItem("bh-studio:ollama-base-url") ||
+      localStorage.getItem("qah:ollama-base-url") ||
       DEFAULT_OLLAMA_BASE_URL,
     model:
-      localStorage.getItem("bh-studio:ollama-model") || DEFAULT_OLLAMA_MODEL,
+      localStorage.getItem("qah:ollama-model") || DEFAULT_OLLAMA_MODEL,
     temperature: DEFAULT_TEMPERATURE,
     maxTokens: DEFAULT_MAX_TOKENS,
   };
@@ -27,7 +27,7 @@ function getOllamaConfig(): OllamaConfig {
 
 function buildSystemPrompt(request: SkillRequest): string {
   const parts: string[] = [
-    `You are the ${request.skillId} skill for BH Studio, an AI-assisted creative workspace.`,
+    `You are the ${request.skillId} skill for QAL'AT AL-HAQQ, an AI-assisted creative workspace.`,
     "Respond with structured, actionable output. Be concise and precise.",
   ];
 

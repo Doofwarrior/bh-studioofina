@@ -13,9 +13,10 @@
  * - Auto-backs up any file before overwriting
  */
 
-import { z } from "zod";
 import {
   ProjectManifestSchema,
+  DecisionEntrySchema,
+  PromptAssetSchema,
   type ProjectManifest,
   type DecisionEntry,
   type PromptAsset,
@@ -31,7 +32,7 @@ const projectCache = new Map<string, ProjectManifest>();
 
 // ─── localStorage Helpers ───
 
-const LS_PREFIX = "bh-studio:";
+const LS_PREFIX = "qah:";
 
 function lsGet<T>(key: string): T | null {
   try {
@@ -46,11 +47,21 @@ function lsSet(key: string, value: unknown): void {
   localStorage.setItem(`${LS_PREFIX}${key}`, JSON.stringify(value));
 }
 
-function lsRemove(key: string): void {
-  localStorage.removeItem(`${LS_PREFIX}${key}`);
-}
-
 // ─── Directory Handle Management ───
+
+declare global {
+  interface Window {
+    showDirectoryPicker(options?: {
+      mode?: "readwrite" | "read";
+      startIn?: "documents" | "desktop" | "downloads" | "music" | "pictures" | "videos";
+    }): Promise<FileSystemDirectoryHandle>;
+  }
+  interface FileSystemDirectoryHandle {
+    name: string;
+    requestPermission(descriptor: { mode: "readwrite" | "read" }): Promise<"granted" | "denied">;
+    entries(): AsyncIterableIterator<[string, FileSystemDirectoryHandle | FileSystemFileHandle]>;
+  }
+}
 
 let workspaceHandle: FileSystemDirectoryHandle | null = null;
 
@@ -63,7 +74,24 @@ export async function requestWorkspaceAccess(): Promise<boolean> {
       return true;
     }
 
-    // Request new directory
+    return await selectWorkspaceDirectory();
+  } catch {
+    return false;
+  }
+}
+
+// Non-gesture accessors so the UI can reflect the actual workspace connection
+// state without re-invoking the native directory picker.
+export function isWorkspaceConnected(): boolean {
+  return workspaceHandle !== null;
+}
+
+export function getWorkspaceName(): string | null {
+  return workspaceHandle?.name ?? null;
+}
+
+export async function selectWorkspaceDirectory(): Promise<boolean> {
+  try {
     const handle = await window.showDirectoryPicker({
       mode: "readwrite",
       startIn: "documents",
@@ -81,7 +109,6 @@ async function saveDirectoryHandle(
   handle: FileSystemDirectoryHandle
 ): Promise<void> {
   try {
-    const keys = await navigator.storage.getDirectory();
     // Store handle in IndexedDB for persistence across sessions
     const db = await openDB();
     const tx = db.transaction("handles", "readwrite");
@@ -98,16 +125,22 @@ async function restoreDirectoryHandle(): Promise<FileSystemDirectoryHandle | nul
     const db = await openDB();
     const tx = db.transaction("handles", "readonly");
     const store = tx.objectStore("handles");
-    const handle = await store.get("workspace");
+
+    const handle = await new Promise<FileSystemDirectoryHandle | null>((resolve) => {
+      const request = store.get("workspace");
+      request.onsuccess = () => resolve(request.result as FileSystemDirectoryHandle);
+      request.onerror = () => resolve(null);
+    });
+
     db.close();
 
     if (handle) {
       // Verify permission
-      const permission = await (handle as FileSystemDirectoryHandle).requestPermission({
+      const permission = await handle.requestPermission({
         mode: "readwrite",
       });
       if (permission === "granted") {
-        return handle as FileSystemDirectoryHandle;
+        return handle;
       }
     }
     return null;
@@ -118,7 +151,7 @@ async function restoreDirectoryHandle(): Promise<FileSystemDirectoryHandle | nul
 
 function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open("BHStudioStorage", 1);
+    const request = indexedDB.open("QAHStudioStorage", 1);
     request.onerror = () => reject(request.error);
     request.onsuccess = () => resolve(request.result);
     request.onupgradeneeded = () => {
@@ -130,13 +163,6 @@ function openDB(): Promise<IDBDatabase> {
   });
 }
 
-// ─── Path Helpers ───
-
-function getWorkspacePath(): string {
-  const configured = localStorage.getItem("bh-studio:workspace-path");
-  return configured || "~/BH-Studio-Workspace";
-}
-
 // ─── Project Operations ───
 
 export async function createProject(
@@ -146,6 +172,11 @@ export async function createProject(
 
   // Save to localStorage (primary store for v1.0 browser build)
   const projects = lsGet<ProjectManifest[]>("projects") || [];
+
+  if (projects.some((p) => p.slug === manifest.slug)) {
+    throw new Error(`Project with slug already exists: ${manifest.slug}`);
+  }
+
   projects.push(manifest);
   lsSet("projects", projects);
 
@@ -252,11 +283,9 @@ export async function writeProjectManifest(
 }
 
 export async function listProjects(): Promise<ProjectManifest[]> {
-  // Try localStorage first
-  const projects = lsGet<ProjectManifest[]>("projects") || [];
-
-  // Validate all entries
-  const validProjects = projects.filter((p) => {
+  // Validate localStorage entries
+  const localProjects = lsGet<ProjectManifest[]>("projects") || [];
+  const validLocal = localProjects.filter((p) => {
     try {
       ProjectManifestSchema.parse(p);
       return true;
@@ -265,10 +294,38 @@ export async function listProjects(): Promise<ProjectManifest[]> {
     }
   });
 
-  // Update cache
-  validProjects.forEach((p) => projectCache.set(p.id, p));
+  // When a workspace is connected, reconcile with the durable on-disk store.
+  if (workspaceHandle) {
+    try {
+      const projectsDir = await workspaceHandle.getDirectoryHandle("projects");
+      const fsProjects: ProjectManifest[] = [];
+      for await (const [, entry] of projectsDir.entries()) {
+        if (entry.kind !== "directory") continue;
+        try {
+          const fileHandle = await entry.getFileHandle(PROJECT_MANIFEST_FILENAME);
+          const file = await fileHandle.getFile();
+          const parsed = ProjectManifestSchema.safeParse(JSON.parse(await file.text()));
+          if (parsed.success) fsProjects.push(parsed.data);
+        } catch {
+          // Ignore malformed/partial project manifests.
+        }
+      }
 
-  return validProjects;
+      // Prefer filesystem manifests; dedupe by id (fallback to slug).
+      const merged = new Map<string, ProjectManifest>();
+      for (const p of [...validLocal, ...fsProjects]) {
+        merged.set(p.id || `slug:${p.slug}`, p);
+      }
+      const result = Array.from(merged.values());
+      result.forEach((p) => projectCache.set(p.id, p));
+      return result;
+    } catch {
+      // FS enumeration failed; fall back to localStorage only.
+    }
+  }
+
+  validLocal.forEach((p) => projectCache.set(p.id, p));
+  return validLocal;
 }
 
 export async function deleteProject(projectSlug: string): Promise<void> {
@@ -292,6 +349,15 @@ export async function deleteProject(projectSlug: string): Promise<void> {
     (p) => p.slug === projectSlug
   );
   if (toRemove) projectCache.delete(toRemove.id);
+
+  // Remove project-scoped localStorage keys (decisions, prompts, files)
+  const prefix = `${LS_PREFIX}project:${projectSlug}:`;
+  for (let i = localStorage.length - 1; i >= 0; i--) {
+    const k = localStorage.key(i);
+    if (k?.startsWith(prefix)) {
+      localStorage.removeItem(k);
+    }
+  }
 }
 
 // ─── File Operations ───
@@ -398,7 +464,9 @@ export async function appendDecision(
   projectSlug: string,
   entry: DecisionEntry
 ): Promise<void> {
-  const key = `project:${projectSlug}:decisions:log`;
+  DecisionEntrySchema.parse(entry);
+
+  const key = `project:${projectSlug}:decisions:decisions.json`;
   const existing = lsGet<DecisionEntry[]>(key) || [];
   existing.push(entry);
   lsSet(key, existing);
@@ -418,7 +486,9 @@ export async function savePrompt(
   projectSlug: string,
   prompt: PromptAsset
 ): Promise<void> {
-  const key = `project:${projectSlug}:prompts:${prompt.id}`;
+  PromptAssetSchema.parse(prompt);
+
+  const key = `project:${projectSlug}:prompts:${prompt.id}.json`;
   lsSet(key, prompt);
 
   await writeFile(

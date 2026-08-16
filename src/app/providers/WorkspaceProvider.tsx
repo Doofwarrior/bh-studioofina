@@ -10,7 +10,7 @@ import { useWorkspace } from "@/hooks/useWorkspace";
 interface WorkspaceContextValue {
   workspacePath: string;
   isConfigured: boolean;
-  configureWorkspace: (path: string) => void;
+  connectWorkspace: () => Promise<boolean>;
 }
 
 const WorkspaceContext = createContext<WorkspaceContextValue | null>(null);

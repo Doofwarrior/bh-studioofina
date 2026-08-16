@@ -6,6 +6,8 @@ import { CreateProjectModal } from "@/features/projects/CreateProjectModal";
 import { useWorkspace } from "@/hooks/useWorkspace";
 import { createProject, listProjects } from "@/lib/storage";
 import type { ProjectManifest } from "@/types/project";
+import { useNavigate } from "react-router-dom";
+import { useProjectContext } from "@/app/providers/ProjectProvider";
 import { Plus, Settings, FolderOpen } from "lucide-react";
 
 interface DashboardPageProps {
@@ -17,10 +19,14 @@ export function DashboardPage({ onOpenSettings }: DashboardPageProps) {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const { workspacePath, isConfigured } = useWorkspace();
+  const { loadProject } = useProjectContext();
+  const navigate = useNavigate();
 
-  // Load projects
+  // Load projects. Re-run discovery whenever the workspace connection state
+  // changes so filesystem reconciliation runs against a usable handle.
   useEffect(() => {
     async function load() {
+      setIsLoading(true);
       try {
         const loaded = await listProjects();
         setProjects(loaded);
@@ -31,7 +37,7 @@ export function DashboardPage({ onOpenSettings }: DashboardPageProps) {
       }
     }
     load();
-  }, []);
+  }, [isConfigured, workspacePath]);
 
   const handleCreateProject = async (manifest: ProjectManifest) => {
     try {
@@ -115,7 +121,10 @@ export function DashboardPage({ onOpenSettings }: DashboardPageProps) {
         ) : (
           <ProjectList
             projects={projects}
-            onSelectProject={() => {}}
+            onSelectProject={(project) => {
+              loadProject(project);
+              navigate("/project");
+            }}
           />
         )}
       </div>

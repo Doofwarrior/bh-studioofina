@@ -58,7 +58,7 @@ User Action → Feature Component → Skill Module → aiBridge.ts → LLM API
 
 ## Workspace Layout
 
-Default: `~/BH-Studio-Workspace/`
+Default: `~/QAH-Workspace/`
 
 ```
 projects/
