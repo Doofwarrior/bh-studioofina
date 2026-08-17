@@ -63,13 +63,19 @@ function BootSequence() {
   const [step, setStep] = useState(0);
 
   useEffect(() => {
-    const t1 = setTimeout(() => setStep(1), 300);
-    return () => clearTimeout(t1);
+    const t1 = setTimeout(() => setStep(1), 500);
+    const t2 = setTimeout(() => setStep(2), 1000);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
   }, []);
 
   const steps = [
     { id: 0, label: "SYSTEM BOOT", detail: "Core modules loaded" },
     { id: 1, label: "WORKSPACE CHECK", detail: "Verifying storage connection" },
+    { id: 2, label: "READY", detail: "Startup sequence complete" },
   ];
 
   return (
@@ -141,7 +147,7 @@ function BootSequence() {
         <div className="mt-4 h-px w-full bg-qah-border">
           <div
             className="h-full bg-qah-accent transition-all duration-700 ease-out"
-            style={{ width: step >= 1 ? "100%" : "50%" }}
+            style={{ width: `${((step + 1) / steps.length) * 100}%` }}
           />
         </div>
 
