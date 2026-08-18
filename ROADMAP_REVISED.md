@@ -1,436 +1,717 @@
-# BH Studioofina — Roadmap, State & New-Chat Handoff
+# BH Studioofina — Master Roadmap & New-Chat Engineering Instructions
 
-**Status:** Active recovery checkpoint — implementation intentionally paused after merged S-2
+**Document purpose:** This is the continuity and safety contract for future ChatGPT sessions working on BH Studioofina.
+
 **Repository:** `Doofwarrior/bh-studioofina`
-**Default branch:** `main`
-**Current known merged S-2 implementation commit:** `29f5ca43d4f35056f76162dd82d881efcd91b4c7`
-**S-2 merge commit on `main`:** `12950f7a74f2e8ae901b53242fd5bdf32db23764`
-**S-2 PR:** #8 — merged
-**Latest roadmap checkpoint commit:** this file's latest commit
-
-## IMPORTANT: New-chat safety contract
-
-If this repository is opened in a new ChatGPT conversation, **do not restart implementation, invent S-3, revert S-2, or refactor architecture merely because the next feature is unclear.**
-
-The correct starting assumption is:
-
-> **BH Studioofina is at the merged S-2 state. The next numbered implementation slice is not authoritatively known yet. Recover the missing roadmap context before implementing anything new.**
-
-Do not treat the old roadmap's `Backup system` bullet as an automatically valid S-3. The storage layer already contains automatic backup behavior, so implementing a duplicate generic backup system would be incorrect without additional authoritative requirements.
+**Remote:** `https://github.com/Doofwarrior/bh-studioofina.git`
+**Canonical branch:** `main`
+**Current state:** S-2 complete and merged; next numbered slice is not yet authoritative
+**Implementation policy:** evidence-first, narrow-slice, architecture-preserving
 
 ---
 
-# 1. Project identity and philosophy
+# 0. READ THIS FIRST — NON-NEGOTIABLE NEW-CHAT CONTRACT
 
-BH Studio v1.0 is an **AI-assisted creative workspace**. The repository README describes the core philosophy as:
+A new ChatGPT session must **not assume that an unfinished-looking roadmap means the next feature should be invented**.
 
-- AI-assisted, not AI-autonomous
-- Projects are the center
-- Software manages organization
-- LLMs provide intelligence
-- No autonomous agents
-- Simple, modular, easy to maintain
-- Workspace is user data
-- Skills are packages, not frameworks
-- Don't build for future possibilities
+The correct starting state is:
 
-The architecture has three conceptual layers:
+> **BH Studioofina has completed S-2: Decision Archive Viewer. S-2 is already merged into `main`. The next numbered implementation slice is currently undefined because the authoritative revised roadmap could not be recovered from surviving repository history. Do not invent S-3. Recover evidence first. If evidence cannot be recovered, stop.**
 
-1. **Application** — UI, Project Manager, AI Bridge, Prompt Library, Export System
-2. **AI Skills** — Core Skills + Islamic Skills
-3. **Workspace** — User projects outside the Git repository
+Before changing any source file, the next chat must:
 
-The application uses local Ollama inference and does not require cloud API keys. The workspace is external to the Git repository.
+1. Inspect the current `main` branch.
+2. Read this entire `ROADMAP_REVISED.md`.
+3. Read `docs/roadmap.md` and explicitly recognize it as the older v1.0 roadmap.
+4. Confirm the S-2 merge is present.
+5. Inspect the current storage/types/routing architecture relevant to the proposed work.
+6. Search repository history and surviving branches for an authoritative definition of the next slice.
+7. Only implement a numbered slice after its scope and acceptance criteria are supported by authoritative evidence.
 
-Source: `README.md`.
+If the next slice remains undefined, **do not create source changes just to make progress**.
 
 ---
 
-# 2. Authoritative old v1.0 roadmap
+# 1. PROJECT IDENTITY
 
-`docs/roadmap.md` says v1.0 is **Current — Locked**, with **no structural changes permitted**.
+BH Studioofina is an **AI-assisted creative workspace**, not an autonomous agent platform.
 
-Its v1.0 scope is:
+Core philosophy:
 
-- Project CRUD and dashboard
-- Workspace management
-- AI Bridge with single provider
-- 3 core skills: `referenceIntelligence`, `exportIntelligence`, `decisionArchive`
-- 1 Islamic skill: `visualDirector`
-- Prompt library
-- Export system
-- Backup system
+- AI-assisted, not AI-autonomous.
+- Projects are the center of the system.
+- Software manages organization and workspace state.
+- LLMs provide intelligence when explicitly invoked.
+- No autonomous agents.
+- Keep the system simple, modular, understandable, and maintainable.
+- Workspace data belongs to the user.
+- Skills are packages/capabilities, not a new application framework.
+- Do not build speculative infrastructure for hypothetical future requirements.
 
-Its implementation order is:
+The repository README describes the conceptual architecture as three layers:
 
-1. Scaffold repository
-2. Build storage/workspace layer
-3. Implement AI Bridge
-4. Implement 3 core skills
-5. Build project workflow
-6. Add `islamic.visualDirector`
-7. Polish and ship
+```text
+APPLICATION
+  UI
+  Project Manager
+  AI Bridge
+  Prompt Library
+  Export System
 
-The roadmap also states v1.1 is future QoL-only work and v2.0 requires standalone architectural proposals. This means a new conversation must **not casually alter the v1.0 architecture**.
+AI SKILLS
+  Core Skills
+  Islamic Skills
 
-Source: `docs/roadmap.md`.
+WORKSPACE
+  User projects / user data outside the Git repository
+```
+
+The application uses local Ollama inference and does not require cloud API keys as a core dependency.
 
 ---
 
-# 3. S-2 — Decision Archive Viewer
+# 2. ARCHITECTURE RULES
+
+The existing v1.0 architecture is locked unless an explicit architectural proposal is recovered and approved.
+
+The following boundaries are important:
+
+## Application layer
+
+Owns UI, routing, project selection, AI bridge integration, prompt library, and export surfaces.
+
+## Skill layer
+
+Contains reusable AI capabilities such as `referenceIntelligence`, `exportIntelligence`, `decisionArchive`, and Islamic skills.
+
+## Workspace/storage layer
+
+Owns persistence and filesystem operations.
+
+The storage module is the authoritative boundary for filesystem operations. UI components must not independently implement filesystem persistence.
+
+### Existing persistence mechanisms
+
+- Browser File System Access API for the connected workspace.
+- localStorage fallback.
+- IndexedDB for persistence of the workspace directory handle.
+- Existing project cache behavior.
+- Existing Zod schemas for validation.
+
+### Rule
+
+**Reuse the existing storage APIs, types, and schemas. Do not introduce another persistence mechanism unless an explicitly authoritative architectural requirement says so.**
+
+---
+
+# 3. AUTHORITATIVE ROADMAP STATUS
+
+The surviving older roadmap is `docs/roadmap.md`.
+
+It describes v1.0 as **Current — Locked** and states that structural changes are not permitted.
+
+The old v1.0 scope includes:
+
+- Project CRUD and dashboard.
+- Workspace management.
+- AI Bridge with a single provider.
+- Three core skills:
+  - `referenceIntelligence`
+  - `exportIntelligence`
+  - `decisionArchive`
+- One Islamic skill:
+  - `visualDirector`
+- Prompt library.
+- Export system.
+- Backup system.
+
+The old implementation order is:
+
+1. Scaffold repository.
+2. Build storage/workspace layer.
+3. Implement AI Bridge.
+4. Implement the three core skills.
+5. Build project workflow.
+6. Add `islamic.visualDirector`.
+7. Polish and ship.
+
+The old roadmap also describes v1.1 as future QoL-only work and v2.0 as requiring standalone architectural proposals.
+
+### Critical interpretation
+
+The old roadmap is useful historical context, but it is **not sufficient evidence for a new numbered slice after S-2**.
+
+Do not convert an old bullet into a new task merely because it appears to be the next unfinished item.
+
+---
+
+# 4. S-2 — DECISION ARCHIVE VIEWER — COMPLETE
 
 ## Status
 
-**S-2 is complete and merged into `main`.**
+**S-2 is COMPLETE and MERGED into `main`.**
 
-PR #8 was merged successfully.
+GitHub PR:
 
-- PR: `#8`
+- PR `#8`
 - Head branch: `implement-decision-archive-viewer-dd6bc`
-- S-2 implementation commit: `29f5ca43d4f35056f76162dd82d881efcd91b4c7`
+- Implementation commit: `29f5ca43d4f35056f76162dd82d881efcd91b4c7`
 - Merge commit on `main`: `12950f7a74f2e8ae901b53242fd5bdf32db23764`
-- PR changed files: 5
+- PR scope: 5 files
 - PR additions: 252
 - PR deletions: 0
 
-The merge was reported as conflict-free and the PR is closed/merged.
+The merge was conflict-free and completed successfully.
 
-## Exact S-2 implementation
+## Exact files changed by S-2
 
-### Added
+```text
+src/lib/storage/index.ts
+src/features/decisions/DecisionArchivePage.tsx
+src/features/decisions/DecisionArchiveViewer.tsx
+src/app/routes/index.tsx
+src/app/layouts/RootLayout.tsx
+```
 
-- `src/features/decisions/DecisionArchivePage.tsx`
-- `src/features/decisions/DecisionArchiveViewer.tsx`
+No other source architecture was intended to change.
 
-### Modified
+---
 
-- `src/lib/storage/index.ts`
-- `src/app/routes/index.tsx`
-- `src/app/layouts/RootLayout.tsx`
+# 5. S-2 IMPLEMENTATION DETAILS
 
-### Storage
+## 5.1 Storage — `readDecisions()`
 
-Added `readDecisions(projectSlug)` to the authoritative storage module.
+Added:
+
+```ts
+readDecisions(projectSlug): Promise<DecisionEntry[]>
+```
 
 Behavior:
 
-1. Prefer the connected workspace's File System Access API.
-2. Read `projects/<projectSlug>/decisions/decisions.json`.
-3. Parse entries as `unknown`.
-4. Validate each entry with the existing `DecisionEntrySchema`.
-5. Fall back to the existing localStorage key:
+1. Prefer the connected workspace File System Access API.
+2. Open `projects/<projectSlug>/decisions/`.
+3. Read `decisions.json`.
+4. Parse raw entries as unknown data.
+5. Validate entries through the existing `DecisionEntrySchema`.
+6. If filesystem access fails, fall back to the existing localStorage key:
    `project:<projectSlug>:decisions:decisions.json`
-6. Filter invalid localStorage entries using the existing schema.
+7. Filter invalid localStorage entries through the existing schema.
+
+This is a read path over the existing persistence design.
 
 **No new persistence layer was introduced.**
 
-### Page
+## 5.2 Page — `DecisionArchivePage.tsx`
 
-`DecisionArchivePage`:
+Responsibilities:
 
-- receives `projectSlug`
-- loads decisions in `useEffect`
-- has loading state
-- has error state
-- avoids updating state after unmount
-- renders `DecisionArchiveViewer` after loading
+- Accept `projectSlug`.
+- Load decisions using `readDecisions()`.
+- Manage loading state.
+- Manage error state.
+- Avoid state updates after unmount.
+- Render `DecisionArchiveViewer` once data is available.
 
-### Viewer
+## 5.3 Viewer — `DecisionArchiveViewer.tsx`
 
-`DecisionArchiveViewer`:
+Reuses existing components and utilities:
 
-- reuses existing `Card`
-- reuses existing `Badge`
-- uses existing `formatDate`
-- shows empty state when no decisions exist
-- shows decision count
-- displays question and timestamp
-- displays locked/unlocked state
-- displays context when present
-- displays selected option
-- displays rationale
-- displays rejected options/rationales when present
-- displays AI-assisted status and `skillId` when available
+- `Card`
+- `Badge`
+- `formatDate`
+- existing Lucide icons
 
-### Routing
+Displays:
 
-Added `/decisions` to the existing React Router architecture.
+- Empty state.
+- Decision count.
+- Question.
+- Timestamp.
+- Locked/unlocked status.
+- Context when available.
+- Selected option.
+- Rationale.
+- Rejected options/rationales.
+- AI-assisted indicator.
+- Skill ID when present.
 
-The route obtains `activeProject` from the existing `ProjectProvider`.
+## 5.4 Routing
 
-If no project is selected, it shows:
+Added:
 
-`No project selected.`
+```text
+/decisions
+```
 
-Otherwise it renders the archive page for `activeProject.slug`.
+The route reads `activeProject` from the existing `ProjectProvider`.
 
-### Navigation
+If there is no active project, it shows:
 
-Added **Decision Archive** to `RootLayout` navigation using the existing `Archive` Lucide icon.
+```text
+No project selected.
+```
 
-### Validation
+Otherwise it passes `activeProject.slug` to `DecisionArchivePage`.
 
-The implementation work reported:
+## 5.5 Navigation
 
-- Build: **PASS** — approximately `433.73 kB` bundle
-- Lint: **PASS** — `0` errors and `9` pre-existing warnings
-
-No new test suite or new architecture was introduced as part of S-2.
-
----
-
-# 4. Existing decision storage is authoritative
-
-The storage module is explicitly described as the **ONLY module allowed to perform filesystem operations**.
-
-It uses:
-
-- Browser File System Access API
-- localStorage fallback
-- IndexedDB for persistence of the workspace directory handle
-- Zod validation
-- an in-memory project cache
-
-The decision log already has an `appendDecision()` operation. S-2 added the corresponding reader.
-
-Do not bypass this module from UI code.
+Added **Decision Archive** to the existing `RootLayout` navigation using the existing `Archive` Lucide icon.
 
 ---
 
-# 5. IMPORTANT: backup behavior already exists
+# 6. S-2 VALIDATION
 
-The old roadmap lists `Backup system` in v1.0 scope.
+The implementation task reported:
 
-However, the current storage authority explicitly documents:
+- **Build:** PASS
+- Bundle size: approximately `433.73 kB`
+- **Lint:** PASS
+- Lint errors: `0`
+- Lint warnings: `9`, all reported as pre-existing
+
+S-2 did not introduce a new persistence layer or a broad architectural refactor.
+
+If future work touches S-2 code, first verify the merged `main` implementation rather than rebuilding it from memory.
+
+---
+
+# 7. DECISION ARCHIVE STORAGE IS ALREADY ESTABLISHED
+
+The decision archive already has an authoritative append/write path in the storage layer.
+
+S-2 added the missing viewer/read path.
+
+Conceptually:
+
+```text
+Decision Archive Skill
+        │
+        │ appendDecision()
+        ▼
+projects/<slug>/decisions/decisions.json
+        │
+        │ readDecisions()
+        ▼
+DecisionArchivePage
+        │
+        ▼
+DecisionArchiveViewer
+```
+
+The UI must continue to consume the storage layer rather than reading or writing the workspace directly.
+
+---
+
+# 8. BACKUP SYSTEM — IMPORTANT INTERPRETATION
+
+The old roadmap lists **Backup system** in the v1.0 scope.
+
+However, repository investigation found that the current authoritative storage layer already implements backup behavior.
+
+The storage layer explicitly documents:
 
 > “Auto-backs up any file before overwriting.”
 
-`writeFile()` already performs automatic backup before overwriting an existing file. It reads the existing content and, when content exists, stores a timestamped localStorage backup under a key shaped like:
+`writeFile()` already backs up existing content before overwrite and stores timestamped backup data using keys shaped like:
 
-`backup:<projectSlug>:<folder>:<filename>:<timestamp>`
+```text
+backup:<projectSlug>:<folder>:<filename>:<timestamp>
+```
 
 Therefore:
 
-**Do not implement a second generic backup subsystem simply because the old roadmap says “Backup system.”**
+## Do NOT do this
 
-If a future slice requires backup UI, restore, browsing, retention, export, recovery, or another specific capability, that capability must be explicitly supported by recovered project requirements/history before implementation.
+Do not implement a second generic backup engine merely because the old roadmap contains the phrase `Backup system`.
 
-Source: current `src/lib/storage/index.ts`.
+That would duplicate existing behavior and violate the narrow-slice / source-of-truth rules.
+
+## What may eventually be possible
+
+A future authoritative slice could potentially define a specific capability around the existing backup data, such as:
+
+- backup browsing
+- restore
+- retention management
+- recovery UX
+- backup export
+- backup diagnostics
+
+But **none of those are automatically approved**.
+
+A future backup-related feature requires explicit requirements or recovered roadmap evidence.
 
 ---
 
-# 6. Repository-history gap after S-2
+# 9. THE REAL CURRENT BLOCKER — MISSING S-3 DEFINITION
 
-The investigation that led to this checkpoint found:
+After S-2, repository investigation found a source-of-truth gap.
+
+The evidence chain is:
 
 ```text
 S-2 Decision Archive Viewer
         ↓
 merged into main
         ↓
-old docs/roadmap.md still describes v1.0 scope
+old docs/roadmap.md remains historical v1.0 context
         ↓
-old roadmap includes “Backup system”
+old roadmap contains “Backup system”
         ↓
-current storage already implements automatic backups
+current storage already provides automatic backup-on-overwrite behavior
         ↓
-there was no authoritative ROADMAP_REVISED.md in the surviving history
+no surviving authoritative ROADMAP_REVISED.md previously defined the next slice
         ↓
-no surviving branch was found that authoritatively defined the next numbered slice
+surviving audit snapshot did not provide the missing numbered slice
         ↓
-there is no safe evidence for S-3
+S-3 cannot safely be inferred
 ```
 
-The surviving `kimi-audit-snapshot` branch was investigated during the earlier task. It retained the old `docs/roadmap.md` and did not provide the missing revised roadmap.
+This is a genuine repository-history/documentation gap.
 
-This is a **real repository-history/source-of-truth gap**.
-
-It is not permission to guess.
+It is **not** a license to guess.
 
 ---
 
-# 7. Current S-3 status
+# 10. CURRENT ROADMAP — BUILD GATES
 
-## S-3 — NOT DEFINED
+The roadmap from this point forward must use explicit evidence gates.
 
-**Status:** Blocked pending recovery of authoritative roadmap context.
+## Gate A — Repository orientation
 
-There is currently no repository-supported definition of the next numbered implementation slice that is safe to execute.
+Before any implementation:
 
-### Do NOT assume
+- Inspect `main`.
+- Read this file.
+- Read `README.md`.
+- Read `docs/roadmap.md`.
+- Inspect the relevant current source files.
+- Check Git status and recent history.
 
-Do not assume:
+**Exit condition:** current repository state is understood.
 
-- `Backup system` = S-3
-- any v1.1 candidate = S-3
-- any v2.0 candidate = S-3
-- a feature suggested by an LLM = approved work
-- a feature suggested by a GitHub issue = approved work
-- a feature suggested by an old audit snapshot = approved work
+## Gate B — Roadmap recovery
 
-### Do NOT implement
+Search for:
 
-Until the roadmap gap is resolved, do not:
+- revised roadmap files
+- roadmap commits
+- branches containing revised planning
+- archived project instructions
+- authoritative task definitions
+- previous task handoffs that define the next numbered slice
 
-- build a new backup subsystem
-- create backup UI/API without explicit requirements
-- invent S-3
-- alter the v1.0 architecture
-- introduce a new persistence layer
-- refactor unrelated code
-- modify audit documents to manufacture requirements
-- rewrite S-2
-- revert the merged S-2 work
+Do not treat arbitrary issue comments or speculative suggestions as authoritative without corroboration.
 
----
+**Exit condition:** S-3 has an authoritative definition OR the search proves the definition is unavailable.
 
-# 8. Exact recovery procedure for the next chat
+## Gate C — Scope lock
 
-When continuing this project:
+If S-3 is recovered, write down:
 
-1. Inspect the repository's current `main` state.
-2. Confirm S-2 is present and merged.
-3. Read this `ROADMAP_REVISED.md` completely.
-4. Read `docs/roadmap.md` but treat it as the **old v1.0 roadmap**, not as proof of an S-3.
-5. Inspect any surviving authoritative project context/history that may define the missing revised roadmap.
-6. Search repository branches/history for a real roadmap revision before inventing anything.
-7. If authoritative S-3 evidence is recovered, document the exact S-3 scope and acceptance criteria here before implementation.
-8. If no evidence is recovered, **stop and report the roadmap gap**.
-9. Do not create source changes merely to make progress.
+- exact objective
+- exact files expected to change
+- explicit non-goals
+- acceptance criteria
+- validation commands
+- dependencies on existing architecture
 
----
+Do not begin implementation until this scope is unambiguous.
 
-# 9. Engineering rules for all future slices
+**Exit condition:** one narrow implementation slice is locked.
 
-Every future implementation must preserve these constraints:
+## Gate D — Implementation
 
-1. Follow the existing v1.0 architecture.
-2. Treat roadmap/audit material as source-of-truth.
-3. Keep implementation narrowly scoped to one slice.
-4. Reuse existing storage APIs.
-5. Reuse existing project types and Zod schemas.
-6. Reuse existing routing and navigation architecture.
-7. Reuse existing UI components and toast patterns where applicable.
-8. Do not add a new persistence layer unless an explicitly approved architecture change requires it.
-9. Do not refactor unrelated code.
-10. Do not fabricate missing data or acceptance criteria.
-11. Do not use autonomous agents, workflows, or subagents for feature implementation when the project task explicitly forbids them.
-12. Run the project's prescribed validation checks after implementation.
-13. Do not modify roadmap or audit documents during a feature implementation unless the task explicitly requests a roadmap/documentation update.
-14. Do not commit or push unless the task explicitly requests it.
+Implement only the locked slice.
 
----
+Rules:
 
-# 10. Repository / Git state context
+- Reuse existing APIs.
+- Reuse existing types/schemas.
+- Reuse existing UI patterns.
+- Reuse existing routing/navigation.
+- Do not introduce speculative abstractions.
+- Do not refactor unrelated code.
+- Do not change architecture.
 
-Repository:
+**Exit condition:** requested slice is implemented and no unrelated changes exist.
 
-`https://github.com/Doofwarrior/bh-studioofina.git`
+## Gate E — Validation
 
-Default branch:
+Run the repository's appropriate validation commands, at minimum the project build and lint checks when applicable.
 
-`main`
+Also run tests/typecheck if those scripts exist and are relevant.
 
-The earlier local workspace had a temporary implementation branch named:
+Fix only errors caused by the implementation unless the task explicitly authorizes unrelated cleanup.
 
-`qwen-code-3a5e5525-1ecc-4128-8d6a-ea82085dd6bc`
+**Exit condition:** validation passes or remaining failures are clearly documented as pre-existing/environmental.
 
-The S-2 implementation was committed locally as:
+## Gate F — Git review
 
-`29f5ca43d4f35056f76162dd82d881efcd91b4c7`
+Before committing or pushing, if the task requests Git operations:
 
-The GitHub PR used the branch:
+- inspect complete diff
+- verify only intended files changed
+- exclude generated/dependency noise from the intended feature scope
+- verify branch and HEAD
+- verify no accidental modifications
 
-`implement-decision-archive-viewer-dd6bc`
+Do not create duplicate commits.
 
-PR #8 was then merged into `main` with merge commit:
+**Exit condition:** Git state is intentional.
 
-`12950f7a74f2e8ae901b53242fd5bdf32db23764`
+## Gate G — Delivery
 
-A later roadmap checkpoint was added to `ROADMAP_REVISED.md`.
+Only commit, push, create PRs, or merge when explicitly requested.
 
-**Important:** If working in a new local workspace, do not assume the temporary qwen branch is the canonical current branch. The canonical GitHub integration target is `main`.
+Never place credentials, tokens, or secrets in files.
 
 ---
 
-# 11. What changed in S-2, in one compact map
+# 11. S-3 — CURRENT STATUS
 
 ```text
-Decision Archive skill/storage
-        │
-        │ existing appendDecision()
-        ▼
-   decisions.json
-        │
-        │ NEW readDecisions()
-        ▼
-DecisionArchivePage
-        │
-        ▼
-DecisionArchiveViewer
-        │
-        ├── Card
-        ├── Badge
-        ├── formatDate
-        └── locked / unlocked / AI-assisted metadata
-
-Routing:
-  /decisions
-
-Navigation:
-  Decision Archive
-```
-
----
-
-# 12. What the next chat must NOT do
-
-Do not start with:
-
-> “I will implement the backup system because that is next on the roadmap.”
-
-That is unsafe and contradicted by the current storage implementation.
-
-Do not start by changing source files.
-
-Do not create S-3 from guesswork.
-
-Do not “clean up” unrelated files.
-
-Do not rewrite architecture.
-
-Do not replace local storage with another database.
-
-Do not create a new decision persistence mechanism.
-
-Do not undo the Decision Archive Viewer.
-
----
-
-# 13. Safe opening prompt for a new ChatGPT chat
-
-Copy/paste this into the next chat if needed:
-
-> **Continue BH Studioofina from the existing repository state. Do not restart or invent work. First inspect `ROADMAP_REVISED.md`, `docs/roadmap.md`, and the current `main` branch. S-2 Decision Archive Viewer is already merged into `main` via PR #8. The S-2 implementation commit is `29f5ca43d4f35056f76162dd82d881efcd91b4c7`; the merge commit is `12950f7a74f2e8ae901b53242fd5bdf32db23764`. S-2 changed only `src/lib/storage/index.ts`, `src/features/decisions/DecisionArchivePage.tsx`, `src/features/decisions/DecisionArchiveViewer.tsx`, `src/app/routes/index.tsx`, and `src/app/layouts/RootLayout.tsx`. Build passed (~433.73 kB) and lint passed with 0 errors and 9 pre-existing warnings. The storage layer already auto-backs up files before overwrite, so do NOT invent a duplicate backup subsystem. There is currently no authoritative definition of S-3. Recover the missing roadmap/source-of-truth context first. If it cannot be recovered, stop and report the gap rather than implementing a guessed feature. Do not refactor unrelated code, change architecture, fabricate requirements, or modify source files until the next slice is authoritative.**
-
----
-
-# 14. Final checkpoint
-
-```text
-PROJECT: BH Studioofina
-ARCHITECTURE: v1.0 locked / narrow-slice
-CURRENT RELEASE STATE: S-2 merged
-S-2: COMPLETE ✅
-S-2 PR: #8 merged ✅
-S-2 implementation commit: 29f5ca43d4f35056f76162dd82d881efcd91b4c7
-S-2 merge commit: 12950f7a74f2e8ae901b53242fd5bdf32db23764
-BUILD: PASS
-LINT: PASS (0 errors; 9 pre-existing warnings)
-BACKUP: already exists in storage layer
 S-3: UNDEFINED / BLOCKED
-NEXT ACTION: recover authoritative roadmap context
-IMPLEMENTATION: PAUSED until S-3 is authoritative
 ```
 
-**Decision:** preserve the current repository state. Do not fill the roadmap gap with an invented feature.
+There is currently no authoritative repository-supported definition of S-3 in the surviving evidence.
+
+### S-3 is NOT automatically any of these
+
+- Backup system
+- Backup UI
+- Restore UI
+- Backup API
+- v1.1 QoL feature
+- v2.0 feature
+- Any AI-generated suggestion
+- Any arbitrary GitHub issue
+- Any feature inferred from an audit document
+
+### Required outcome
+
+Either:
+
+1. Recover an authoritative S-3 definition and proceed through the build gates; or
+2. Report that the roadmap is still blocked and make **no source changes**.
+
+---
+
+# 12. SOURCE-OF-TRUTH PRIORITY
+
+When documents or suggestions conflict, use this priority order unless the project explicitly says otherwise:
+
+1. Current repository code and actual merged Git history.
+2. Explicit current task instructions from the project owner.
+3. An authoritative revised roadmap or project handoff.
+4. Current architecture/type/schema definitions.
+5. Older roadmap documents, clearly labeled as historical context.
+6. Audit snapshots, unless explicitly identified as authoritative requirements.
+7. GitHub issues/comments and speculative proposals.
+8. AI-generated assumptions.
+
+Never let a lower-priority source override a higher-priority repository fact without explicit evidence.
+
+---
+
+# 13. ENGINEERING RULES FOR FUTURE WORK
+
+These rules apply to every future slice:
+
+1. Preserve the v1.0 architecture.
+2. Work one narrow slice at a time.
+3. Inspect before editing.
+4. Identify exact files before implementation.
+5. Prefer existing APIs over new abstractions.
+6. Reuse existing UI components.
+7. Reuse existing toast/notification patterns where applicable.
+8. Reuse existing Zod schemas and project types.
+9. Do not bypass the storage boundary.
+10. Do not add persistence layers speculatively.
+11. Do not refactor unrelated code.
+12. Do not fabricate data.
+13. Do not fabricate acceptance criteria.
+14. Do not infer a numbered slice from a vague roadmap bullet.
+15. Do not change audit documents during feature work unless explicitly requested.
+16. Do not change roadmap documents during feature work unless explicitly requested.
+17. Do not use autonomous agents, workflows, or subagents when the task explicitly forbids them.
+18. Run build/lint/typecheck/tests appropriate to the repository after implementation.
+19. Review the complete diff before any requested commit.
+20. Never commit or push unless the user explicitly asks.
+21. Never put credentials, tokens, or secrets into source, configuration, or documentation files.
+22. Never create a duplicate commit when the requested commit already exists.
+
+---
+
+# 14. FUTURE SLICE TEMPLATE
+
+When an authoritative future slice is recovered, document it using this structure before coding:
+
+```markdown
+## S-X — <Name>
+
+Status: Planned / In Progress / Complete
+
+### Objective
+<one precise paragraph>
+
+### Evidence
+- <authoritative source>
+- <commit / document / task reference>
+
+### In scope
+- <item>
+- <item>
+
+### Explicitly out of scope
+- <item>
+- <item>
+
+### Expected files
+- `<path>` — <reason>
+- `<path>` — <reason>
+
+### Existing APIs/types to reuse
+- `<API>`
+- `<type/schema>`
+- `<component>`
+
+### Acceptance criteria
+- [ ] <criterion>
+- [ ] <criterion>
+
+### Validation
+- `<command>`
+- `<command>`
+```
+
+This prevents the next chat from turning an ambiguous request into an uncontrolled feature expansion.
+
+---
+
+# 15. GIT / DELIVERY CONTEXT
+
+Canonical repository:
+
+```text
+https://github.com/Doofwarrior/bh-studioofina.git
+```
+
+Canonical branch:
+
+```text
+main
+```
+
+S-2 implementation commit:
+
+```text
+29f5ca43d4f35056f76162dd82d881efcd91b4c7
+```
+
+S-2 merge commit:
+
+```text
+12950f7a74f2e8ae901b53242fd5bdf32db23764
+```
+
+S-2 PR:
+
+```text
+#8
+```
+
+The earlier implementation workspace used a temporary branch named:
+
+```text
+qwen-code-3a5e5525-1ecc-4128-8d6a-ea82085dd6bc
+```
+
+The PR head branch was:
+
+```text
+implement-decision-archive-viewer-dd6bc
+```
+
+### Important
+
+Do not assume either temporary branch is the current canonical state. Use `main` as the source of truth unless the user explicitly asks to work on another branch.
+
+---
+
+# 16. SAFE NEW-CHAT PROCEDURE
+
+When starting a fresh ChatGPT conversation, the first response should NOT immediately propose implementation.
+
+The model should say, in substance:
+
+1. I will inspect the current repository state.
+2. I will verify S-2 is merged.
+3. I will read `ROADMAP_REVISED.md` and the old roadmap.
+4. I will search for authoritative S-3 evidence.
+5. I will not modify source files until the next slice is confirmed.
+
+Then inspect.
+
+### If S-3 evidence is found
+
+Report:
+
+- where it was found
+- why it is authoritative
+- exact scope
+- intended files
+- acceptance criteria
+- risks/non-goals
+
+Then ask/act according to the user's requested workflow.
+
+### If S-3 evidence is NOT found
+
+Report:
+
+> S-2 is complete and the repository is healthy, but the next numbered slice is not authoritatively defined. I will not invent S-3 or modify source code. The correct next step is recovering the missing roadmap/context.
+
+Then stop.
+
+---
+
+# 17. COPY-PASTE MASTER PROMPT FOR THE NEXT CHAT
+
+Use the following prompt verbatim when continuity is important:
+
+> **Continue BH Studioofina from the existing repository state. This is a continuation, not a restart. First inspect the repository and do not modify source files until the current state is verified. Read `ROADMAP_REVISED.md`, `README.md`, and `docs/roadmap.md`. S-2 Decision Archive Viewer is already complete and merged into `main` via PR #8. The S-2 implementation commit is `29f5ca43d4f35056f76162dd82d881efcd91b4c7`; the merge commit is `12950f7a74f2e8ae901b53242fd5bdf32db23764`. S-2 changed only `src/lib/storage/index.ts`, `src/features/decisions/DecisionArchivePage.tsx`, `src/features/decisions/DecisionArchiveViewer.tsx`, `src/app/routes/index.tsx`, and `src/app/layouts/RootLayout.tsx`. S-2 build passed at approximately 433.73 kB and lint passed with 0 errors and 9 pre-existing warnings. The current storage layer already performs automatic backup-before-overwrite behavior. Therefore do NOT implement a duplicate generic backup system simply because the old roadmap says “Backup system.” The current S-3 definition is undefined/blocked because the authoritative revised roadmap could not be recovered from surviving history. Search repository history, branches, and authoritative project context for the real next slice. If S-3 can be recovered, report the evidence, scope, expected files, non-goals, and acceptance criteria before coding. If it cannot be recovered, stop and report the documentation/history gap. Do not invent requirements, do not refactor unrelated code, do not change architecture, do not introduce a new persistence layer, do not redo S-2, do not modify audit documents, and do not create source changes merely to make progress.**
+
+---
+
+# 18. CURRENT ROADMAP CHECKPOINT
+
+```text
+┌──────────────────────────────────────────────────────────┐
+│ BH STUDIOOFINA — CURRENT STATE                           │
+├──────────────────────────────────────────────────────────┤
+│ Architecture           │ v1.0 locked                     │
+│ S-2                    │ COMPLETE                         │
+│ S-2 PR                 │ #8 — MERGED                      │
+│ S-2 implementation     │ 29f5ca43d4f35056f76162dd...     │
+│ S-2 merge              │ 12950f7a74f2e8ae901b532...       │
+│ Build                  │ PASS                             │
+│ Lint                   │ PASS — 0 errors                  │
+│ Existing backup        │ YES — storage layer              │
+│ New persistence needed │ NO evidence                       │
+│ S-3                    │ UNDEFINED / BLOCKED              │
+│ Next action            │ RECOVER ROADMAP EVIDENCE          │
+│ Source implementation  │ PAUSED until S-3 is authoritative │
+└──────────────────────────────────────────────────────────┘
+```
+
+---
+
+# 19. FINAL DECISION
+
+**Do not fill the roadmap gap with an invented feature.**
+
+The project should resume implementation only when the next numbered slice is supported by authoritative evidence.
+
+Until then, preserving the merged S-2 repository state is the correct engineering action.
