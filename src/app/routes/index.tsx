@@ -10,10 +10,24 @@ import { ProjectPage } from "@/app/pages/ProjectPage";
 import { PromptLibraryPage } from "@/app/pages/PromptLibraryPage";
 import { ExportsPage } from "@/app/pages/ExportsPage";
 import { SettingsPage } from "@/app/pages/SettingsPage";
+import { DecisionArchivePage } from "@/features/decisions/DecisionArchivePage";
+import { useProjectContext } from "@/app/providers/ProjectProvider";
 
 function DashboardRoute() {
   const navigate = useNavigate();
   return <DashboardPage onOpenSettings={() => navigate("/settings")} />;
+}
+
+function DecisionArchiveRoute() {
+  const { activeProject } = useProjectContext();
+  if (!activeProject) {
+    return (
+      <div className="flex h-full items-center justify-center text-[var(--studio-text-muted)]">
+        <p>No project selected.</p>
+      </div>
+    );
+  }
+  return <DecisionArchivePage projectSlug={activeProject.slug} />;
 }
 
 export function createAppRouter() {
@@ -43,6 +57,10 @@ export function createAppRouter() {
         {
           path: "exports",
           element: <ExportsPage />,
+        },
+        {
+          path: "decisions",
+          element: <DecisionArchiveRoute />,
         },
         {
           path: "settings",

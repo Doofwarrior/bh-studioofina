@@ -12,12 +12,14 @@ import {
   Package,
   Settings,
   Sparkles,
+  Archive,
 } from "lucide-react";
 
 const navItems = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
   { to: "/prompts", label: "Prompt Library", icon: MessageSquare },
   { to: "/exports", label: "Exports", icon: Package },
+  { to: "/decisions", label: "Decision Archive", icon: Archive },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 
