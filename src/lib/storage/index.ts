@@ -479,6 +479,38 @@ export async function appendDecision(
   );
 }
 
+export async function readDecisions(
+  projectSlug: string
+): Promise<DecisionEntry[]> {
+  // Try File System Access API first
+  if (workspaceHandle) {
+    try {
+      const projectsDir = await workspaceHandle.getDirectoryHandle("projects");
+      const projectDir = await projectsDir.getDirectoryHandle(projectSlug);
+      const decisionsDir = await projectDir.getDirectoryHandle("decisions");
+      const fileHandle = await decisionsDir.getFileHandle("decisions.json");
+      const file = await fileHandle.getFile();
+      const text = await file.text();
+      const decisions = JSON.parse(text) as unknown[];
+      return decisions.map((d) => DecisionEntrySchema.parse(d));
+    } catch {
+      // Fall through to localStorage
+    }
+  }
+
+  // Fallback to localStorage
+  const key = `project:${projectSlug}:decisions:decisions.json`;
+  const existing = lsGet<DecisionEntry[]>(key) || [];
+  return existing.filter((d) => {
+    try {
+      DecisionEntrySchema.parse(d);
+      return true;
+    } catch {
+      return false;
+    }
+  });
+}
+
 // ─── Prompt Assets ───
 
 export async function savePrompt(
