@@ -11,7 +11,7 @@ import { RouterProvider } from "react-router-dom";
 import { WorkspaceProvider } from "@/app/providers/WorkspaceProvider";
 import { ProjectProvider } from "@/app/providers/ProjectProvider";
 import { createAppRouter } from "@/app/routes";
-import { requestWorkspaceAccess, selectWorkspaceDirectory } from "@/lib/storage";
+import { initialize, isWorkspaceConnected, selectWorkspaceDirectory } from "@/lib/storage";
 import "@/styles/index.css";
 
 // Router is created once at module level - never recreated on re-render
@@ -24,8 +24,9 @@ function App() {
   useEffect(() => {
     async function init() {
       try {
-        const hasAccess = await requestWorkspaceAccess();
-        setWorkspaceReady(hasAccess);
+        // Initialize storage and restore persisted workspace state before rendering the app.
+        await initialize();
+        setWorkspaceReady(isWorkspaceConnected());
       } catch (err) {
         console.error("[App] Workspace init failed:", err);
         setWorkspaceReady(false);
