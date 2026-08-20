@@ -66,6 +66,17 @@ declare global {
 
 let workspaceHandle: FileSystemDirectoryHandle | null = null;
 
+/**
+ * Initialize the storage layer without invoking a user-gesture-only picker.
+ * Restores a previously persisted workspace handle when permission is already granted.
+ */
+export async function initialize(): Promise<void> {
+  const savedHandle = await restoreDirectoryHandle();
+  if (savedHandle) {
+    workspaceHandle = savedHandle;
+  }
+}
+
 export async function requestWorkspaceAccess(): Promise<boolean> {
   try {
     // Try to restore from previous session
