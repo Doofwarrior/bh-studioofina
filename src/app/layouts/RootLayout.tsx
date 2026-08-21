@@ -31,9 +31,18 @@ export function RootLayout() {
         {/* Logo */}
         <div className="flex items-center gap-2 border-b p-4">
           <Sparkles size={20} className="text-[var(--studio-accent)]" />
-          <span className="text-lg font-bold text-[var(--studio-text)]">
-            BH Studio
-          </span>
+          <div className="flex flex-col">
+            <span className="text-sm font-bold tracking-[0.1em] text-[var(--studio-text)]">
+              QAL&apos;AT AL-HAQQ
+            </span>
+            <span
+              className="text-[10px] font-arabic text-[var(--studio-text-muted)]"
+              dir="rtl"
+              lang="ar"
+            >
+              قَلْعَةُ الْحَقّ
+            </span>
+          </div>
         </div>
 
         {/* Navigation */}
