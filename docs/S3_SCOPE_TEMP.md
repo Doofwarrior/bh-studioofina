@@ -1,1 +1,0 @@
-S-3 Workspace Visibility scope is implemented on enhancement/s3-workspace-visibility.
