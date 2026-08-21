@@ -23,16 +23,24 @@ function App() {
 
   useEffect(() => {
     async function init() {
+      const minimumBootDuration = new Promise<void>((resolve) => {
+        setTimeout(resolve, 2000);
+      });
+
+      let ready = false;
+
       try {
         // Initialize storage and restore persisted workspace state before rendering the app.
         await initialize();
-        setWorkspaceReady(isWorkspaceConnected());
+        ready = isWorkspaceConnected();
       } catch (err) {
         console.error("[App] Workspace init failed:", err);
-        setWorkspaceReady(false);
-      } finally {
-        setIsChecking(false);
       }
+
+      await minimumBootDuration;
+
+      setWorkspaceReady(ready);
+      setIsChecking(false);
     }
     init();
   }, []);
