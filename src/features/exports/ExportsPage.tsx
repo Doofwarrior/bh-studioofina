@@ -87,6 +87,23 @@ export function ExportsPage() {
     }
   };
 
+  const handleDownload = (exp: ExportPackage) => {
+    const safeName =
+      exp.name.trim().replace(/[^a-zA-Z0-9-_]+/g, "-").replace(/^-+|-+$/g, "") ||
+      exp.id;
+    const blob = new Blob([JSON.stringify(exp, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `${safeName}.json`;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -142,7 +159,11 @@ export function ExportsPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge>{exp.format}</Badge>
-                  <Button variant="ghost" size="sm">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDownload(exp)}
+                  >
                     <Download size={14} />
                   </Button>
                 </div>
