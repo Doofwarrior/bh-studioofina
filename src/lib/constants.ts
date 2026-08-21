@@ -1,8 +1,8 @@
 /**
- * BH Studio v1.0 — Application Constants
+ * QAL'AT AL-HAQQ v1.0 — Application Constants
  */
 
-export const APP_NAME = "BH Studio";
+export const APP_NAME = "QAL'AT AL-HAQQ";
 export const APP_VERSION = "1.0.0";
 
 // ─── Workspace ───

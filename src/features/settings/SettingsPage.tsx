@@ -217,7 +217,7 @@ export function SettingsPage() {
         </div>
       </Card>
 
-      <Card title="About" subtitle="BH Studio information">
+      <Card title="About" subtitle="QAL'AT AL-HAQQ information">
         <div className="space-y-2 text-sm text-[var(--studio-text-muted)]">
           <p>Version: 1.0.0</p>
           <p>Architecture: Three-layer (Application → AI Skills → Workspace)</p>

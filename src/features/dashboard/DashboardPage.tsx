@@ -63,12 +63,10 @@ export function DashboardPage({ onOpenSettings }: DashboardPageProps) {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-[var(--studio-text)]">
-            Dashboard
+            QAL&apos;AT AL-HAQQ
           </h1>
-          <p className="text-sm text-[var(--studio-text-muted)]">
-            {isConfigured
-              ? `Workspace: ${workspacePath}`
-              : "Workspace not configured"}
+          <p className="text-xs font-arabic text-[var(--studio-text-muted)]" dir="rtl" lang="ar">
+            قَلْعَةُ الْحَقّ — Dashboard
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -81,6 +79,19 @@ export function DashboardPage({ onOpenSettings }: DashboardPageProps) {
             New Project
           </Button>
         </div>
+      </div>
+
+      {/* Workspace Status */}
+      <div className="rounded-md border border-[var(--studio-border)] bg-[var(--studio-surface-elevated)] px-4 py-2">
+        <p className="text-xs text-[var(--studio-text-muted)]">
+          {isConfigured ? (
+            <>
+              <span className="font-mono">{workspacePath}</span>
+            </>
+          ) : (
+            "Workspace not configured"
+          )}
+        </p>
       </div>
 
       {/* Stats */}
