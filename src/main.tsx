@@ -11,6 +11,7 @@ import { RouterProvider } from "react-router-dom";
 import { WorkspaceProvider } from "@/app/providers/WorkspaceProvider";
 import { ProjectProvider } from "@/app/providers/ProjectProvider";
 import { createAppRouter } from "@/app/routes";
+import Bootloader from "@/components/Bootloader/Bootloader";
 import { initialize, isWorkspaceConnected, selectWorkspaceDirectory } from "@/lib/storage";
 import "@/styles/index.css";
 
@@ -46,7 +47,11 @@ function App() {
   }, []);
 
   if (isChecking) {
-    return <BootSequence />;
+    return (
+      <Bootloader>
+        <BootSequence />
+      </Bootloader>
+    );
   }
 
   if (!workspaceReady) {
