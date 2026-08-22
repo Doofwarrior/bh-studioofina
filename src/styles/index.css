@@ -8,17 +8,33 @@
 
 @layer base {
   :root {
-    /* ── QAL'AT AL-HAQQ primary design tokens ── */
-    --qah-bg: #050505;
-    --qah-surface: #0a0a0a;
-    --qah-surface-raised: #111111;
-    --qah-border: #1a1a1a;
-    --qah-border-strong: #2a2a2a;
-    --qah-text: #e8e8e8;
-    --qah-text-muted: #888888;
-    --qah-text-subtle: #555555;
-    --qah-accent: #b8a050;
-    --qah-accent-dim: #7a6b35;
+    /* ── QAL'AT AL-HAQQ primary design tokens — Glyphic Matrix × Cyber-Brutalism ── */
+    
+    /* Background system — near-black with deep green-black environmental tones */
+    --qah-bg: #030403;
+    --qah-surface: #080a08;
+    --qah-surface-raised: #0d100d;
+    
+    /* Border system — lighter structural tones, engineered feel */
+    --qah-border: #1a241a;
+    --qah-border-strong: #243024;
+    --qah-border-pale: #2d3a2d;
+    --qah-border-mute: #1f291f;
+    
+    /* Typography — pale/off-white for readability */
+    --qah-text: #e8ece8;
+    --qah-text-muted: #9aa89a;
+    --qah-text-subtle: #5a685a;
+    --qah-text-dim: #3a483a;
+    
+    /* Accent — controlled electric/lime green, luminous but disciplined */
+    --qah-accent: #7fff7f;
+    --qah-accent-bright: #9aff9a;
+    --qah-accent-dim: #4a8f4a;
+    --qah-accent-dark: #2a4f2a;
+    --qah-accent-glow: rgba(127, 255, 127, 0.15);
+    
+    /* Semantic colors — subdued, supporting readability */
     --qah-warning: #c4a030;
     --qah-danger: #a04040;
     --qah-success: #4a7a4a;
@@ -67,10 +83,16 @@
       transition-duration: 0.01ms !important;
     }
   }
+
+  /* ── Selection styling — electric green highlight ── */
+  ::selection {
+    background-color: var(--qah-accent-dark);
+    color: var(--qah-text);
+  }
 }
 
 @layer components {
-  /* ── QAL'AT AL-HAQQ Component Primitives ── */
+  /* ── QAL'AT AL-HAQQ Component Primitives — Cyber-Brutalist Foundation ── */
 
   .qah-panel {
     @apply bg-qah-surface border border-qah-border;
@@ -80,16 +102,30 @@
     @apply bg-qah-surface-raised border border-qah-border-strong;
   }
 
+  /* Hard-edged button system — cyber-brutalist geometry */
   .qah-btn {
-    @apply inline-flex items-center justify-center border border-qah-border-strong bg-qah-surface-raised px-4 py-2 text-sm font-medium text-qah-text transition-colors hover:bg-qah-border-strong hover:text-qah-accent focus:outline-none focus:ring-1 focus:ring-qah-accent;
+    @apply inline-flex items-center justify-center rounded-[2px] border border-qah-border-strong bg-qah-surface-raised px-4 py-2 text-sm font-medium text-qah-text transition-colors hover:bg-qah-border-strong hover:text-qah-accent focus:outline-none focus:ring-1 focus:ring-qah-accent disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .qah-btn-primary {
-    @apply inline-flex items-center justify-center border border-qah-accent-dim bg-qah-accent-dim px-4 py-2 text-sm font-medium text-qah-bg transition-colors hover:bg-qah-accent hover:border-qah-accent focus:outline-none focus:ring-1 focus:ring-qah-accent;
+    @apply inline-flex items-center justify-center rounded-[2px] border border-qah-accent-dim bg-qah-accent-dim px-4 py-2 text-sm font-medium text-qah-bg transition-colors hover:bg-qah-accent hover:border-qah-accent focus:outline-none focus:ring-1 focus:ring-qah-accent disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
+  .qah-btn-secondary {
+    @apply inline-flex items-center justify-center rounded-[2px] border border-qah-border bg-transparent px-4 py-2 text-sm font-medium text-qah-text transition-colors hover:bg-qah-surface-raised hover:text-qah-accent focus:outline-none focus:ring-1 focus:ring-qah-accent disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .qah-btn-ghost {
+    @apply inline-flex items-center justify-center rounded-[2px] border border-transparent bg-transparent px-4 py-2 text-sm font-medium text-qah-text-muted transition-colors hover:bg-qah-surface-raised hover:text-qah-text focus:outline-none focus:ring-1 focus:ring-qah-accent disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .qah-btn-danger {
+    @apply inline-flex items-center justify-center rounded-[2px] border border-qah-danger bg-qah-danger px-4 py-2 text-sm font-medium text-qah-bg transition-colors hover:opacity-90 focus:outline-none focus:ring-1 focus:ring-qah-danger disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Technical input system */
   .qah-input {
-    @apply border border-qah-border bg-qah-surface px-3 py-2 text-sm text-qah-text placeholder:text-qah-text-subtle focus:outline-none focus:ring-1 focus:ring-qah-accent focus:border-qah-accent;
+    @apply rounded-[2px] border border-qah-border bg-qah-surface px-3 py-2 text-sm text-qah-text placeholder:text-qah-text-subtle focus:outline-none focus:ring-1 focus:ring-qah-accent focus:border-qah-accent disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .qah-label {
@@ -100,12 +136,42 @@
     @apply h-px bg-qah-border;
   }
 
+  .qah-divider-vertical {
+    @apply w-px bg-qah-border;
+  }
+
+  /* Technical section marker — for section numbering and framing */
+  .qah-section-marker {
+    @apply inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-qah-text-dim before:h-px before:w-8 before:bg-qah-border after:h-px after:w-8 after:bg-qah-border;
+  }
+
+  /* System status indicator */
+  .qah-status-dot {
+    @apply inline-block h-2 w-2 rounded-[1px];
+  }
+
+  .qah-status-dot-active {
+    @apply bg-qah-accent;
+  }
+
+  .qah-status-dot-idled {
+    @apply bg-qah-text-muted;
+  }
+
+  .qah-status-dot-error {
+    @apply bg-qah-danger;
+  }
+
+  .qah-status-dot-warning {
+    @apply bg-qah-warning;
+  }
+
   /* ── Legacy .studio-* compatibility mapping ──
      Existing consumers are automatically migrated to
      the QAL'AT AL-HAQQ visual language without file changes. */
 
   .studio-card {
-    @apply qah-panel p-4;
+    @apply qah-panel p-4 rounded-[2px];
   }
 
   .studio-button {
@@ -113,7 +179,7 @@
   }
 
   .studio-button-secondary {
-    @apply qah-btn;
+    @apply qah-btn-secondary;
   }
 
   .studio-input {
@@ -126,23 +192,39 @@
 }
 
 @layer utilities {
+  /* ── Typography Utilities — Kufic/Glyphic Arabic + Technical Mono ── */
   .font-arabic {
     font-family: "Noto Sans Arabic", system-ui, sans-serif;
+  }
+
+  .font-arabic-kufic {
+    font-family: "Noto Sans Arabic", system-ui, sans-serif;
+    letter-spacing: 0.02em;
   }
 
   .font-mono-technical {
     font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
   }
 
+  /* ── Text Glow Effects — Controlled Electric Green ── */
   .text-accent-glow {
-    text-shadow: 0 0 20px rgba(184, 160, 80, 0.15);
+    text-shadow: 0 0 8px var(--qah-accent-glow), 0 0 16px var(--qah-accent-glow);
   }
 
+  .text-accent-glow-strong {
+    text-shadow: 0 0 4px var(--qah-accent), 0 0 12px var(--qah-accent-dim);
+  }
+
+  /* ── Border Glow — Subtle Active State Illumination ── */
   .border-glow {
-    box-shadow: 0 0 0 1px rgba(184, 160, 80, 0.1);
+    box-shadow: 0 0 0 1px var(--qah-accent-glow);
   }
 
-  /* Subtle grid texture for technical surfaces */
+  .border-glow-active {
+    box-shadow: 0 0 0 1px var(--qah-accent), 0 0 8px var(--qah-accent-glow);
+  }
+
+  /* ── Grid Texture — Technical Surface Pattern ── */
   .grid-texture {
     background-image:
       linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
@@ -150,7 +232,21 @@
     background-size: 32px 32px;
   }
 
-  /* Subtle scanline texture */
+  .grid-texture-fine {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.008) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.008) 1px, transparent 1px);
+    background-size: 16px 16px;
+  }
+
+  .grid-texture-coarse {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  /* ── Scanline Texture — Subtle CRT Effect ── */
   .scanline {
     background-image: repeating-linear-gradient(
       0deg,
@@ -159,5 +255,199 @@
       rgba(255, 255, 255, 0.008) 2px,
       rgba(255, 255, 255, 0.008) 4px
     );
+  }
+
+  .scanline-fine {
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 1px,
+      rgba(255, 255, 255, 0.006) 1px,
+      rgba(255, 255, 255, 0.006) 2px
+    );
+  }
+
+  /* ── Matrix Layer Infrastructure — For Arabic Glyph Backgrounds ── */
+  .matrix-layer {
+    position: relative;
+  }
+
+  .matrix-layer::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.03;
+  }
+
+  .glyph-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  /* ── Glitch Primitives — Restrained Glyphic Displacement ── */
+  .glyph-glitch {
+    position: relative;
+  }
+
+  .glyph-glitch::before,
+  .glyph-glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+    opacity: 0.4;
+  }
+
+  .glyph-glitch::before {
+    transform: translateX(-1px);
+    color: var(--qah-accent);
+    animation: glitch-shift-1 2s infinite linear alternate-reverse;
+  }
+
+  .glyph-glitch::after {
+    transform: translateX(1px);
+    color: var(--qah-text-muted);
+    animation: glitch-shift-2 3s infinite linear alternate-reverse;
+  }
+
+  @keyframes glitch-shift-1 {
+    0%, 100% { transform: translateX(-1px); }
+    50% { transform: translateX(-2px); }
+    75% { transform: translateX(0); }
+  }
+
+  @keyframes glitch-shift-2 {
+    0%, 100% { transform: translateX(1px); }
+    50% { transform: translateX(2px); }
+    75% { transform: translateX(0); }
+  }
+
+  /* Micro-jitter for technical labels */
+  .label-jitter {
+    animation: label-jitter 4s infinite ease-in-out;
+  }
+
+  @keyframes label-jitter {
+    0%, 100% { transform: translateX(0); opacity: 1; }
+    50% { transform: translateX(0.5px); opacity: 0.95; }
+    75% { transform: translateX(-0.5px); opacity: 0.98; }
+  }
+
+  /* ── Structural Frame — Hard-Edged Panel Framing ── */
+  .structural-frame {
+    position: relative;
+    border: 1px solid var(--qah-border-strong);
+  }
+
+  .structural-frame::before {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    width: 8px;
+    height: 8px;
+    border-top: 1px solid var(--qah-accent);
+    border-left: 1px solid var(--qah-accent);
+  }
+
+  .structural-frame::after {
+    content: "";
+    position: absolute;
+    bottom: -1px;
+    right: -1px;
+    width: 8px;
+    height: 8px;
+    border-bottom: 1px solid var(--qah-accent);
+    border-right: 1px solid var(--qah-accent);
+  }
+
+  /* ── Technical Corner Markers ── */
+  .corner-marker-tl,
+  .corner-marker-tr,
+  .corner-marker-bl,
+  .corner-marker-br {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    pointer-events: none;
+  }
+
+  .corner-marker-tl {
+    top: 0;
+    left: 0;
+    border-top: 1px solid var(--qah-border-pale);
+    border-left: 1px solid var(--qah-border-pale);
+  }
+
+  .corner-marker-tr {
+    top: 0;
+    right: 0;
+    border-top: 1px solid var(--qah-border-pale);
+    border-right: 1px solid var(--qah-border-pale);
+  }
+
+  .corner-marker-bl {
+    bottom: 0;
+    left: 0;
+    border-bottom: 1px solid var(--qah-border-pale);
+    border-left: 1px solid var(--qah-border-pale);
+  }
+
+  .corner-marker-br {
+    bottom: 0;
+    right: 0;
+    border-bottom: 1px solid var(--qah-border-pale);
+    border-right: 1px solid var(--qah-border-pale);
+  }
+
+  /* ── Interrupted Border Segments — Technical Line Interruptions ── */
+  .border-segment-top {
+    position: relative;
+  }
+
+  .border-segment-top::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      var(--qah-border) 0%,
+      var(--qah-border) 30%,
+      transparent 30%,
+      transparent 40%,
+      var(--qah-border) 40%,
+      var(--qah-border) 60%,
+      transparent 60%,
+      transparent 70%,
+      var(--qah-border) 70%,
+      var(--qah-border) 100%
+    );
+  }
+
+  /* ── Reduced Motion Support — Automatic Matrix Slowdown ── */
+  @media (prefers-reduced-motion: reduce) {
+    .glyph-glitch::before,
+    .glyph-glitch::after {
+      animation: none;
+      opacity: 0;
+    }
+
+    .label-jitter {
+      animation: none;
+    }
+
+    .scanline,
+    .scanline-fine {
+      background-image: none;
+    }
   }
 }
