@@ -16,15 +16,15 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--studio-accent)] focus:ring-offset-2 disabled:opacity-50",
+        "inline-flex items-center justify-center rounded-[2px] font-medium transition-colors focus:outline-none focus:ring-1 focus:ring-[var(--qah-accent)] disabled:opacity-50 disabled:cursor-not-allowed",
         {
-          "bg-[var(--studio-accent)] text-black hover:bg-[var(--studio-accent-hover)]":
+          "bg-[var(--qah-accent-dim)] text-[var(--qah-bg)] hover:bg-[var(--qah-accent)] border border-[var(--qah-accent-dim)]":
             variant === "primary",
-          "border bg-transparent text-[var(--studio-text)] hover:bg-[var(--studio-surface-elevated)]":
+          "border border-[var(--qah-border-strong)] bg-[var(--qah-surface-raised)] text-[var(--qah-text)] hover:bg-[var(--qah-border-strong)] hover:text-[var(--qah-accent)]":
             variant === "secondary",
-          "bg-transparent text-[var(--studio-text-muted)] hover:text-[var(--studio-text)]":
+          "border border-transparent bg-transparent text-[var(--qah-text-muted)] hover:bg-[var(--qah-surface-raised)] hover:text-[var(--qah-text)]":
             variant === "ghost",
-          "bg-[var(--studio-danger)] text-white hover:opacity-90":
+          "bg-[var(--qah-danger)] text-white hover:opacity-90 border border-[var(--qah-danger)]":
             variant === "danger",
         },
         {

@@ -10,13 +10,13 @@ export function Badge({ children, variant = "default" }: BadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
+        "inline-flex items-center rounded-[2px] px-2.5 py-0.5 text-xs font-medium",
         {
-          "bg-[var(--studio-surface-elevated)] text-[var(--studio-text-muted)]":
+          "bg-[var(--qah-surface-raised)] text-[var(--qah-text-muted)]":
             variant === "default",
-          "bg-green-900/30 text-green-400": variant === "success",
-          "bg-amber-900/30 text-amber-400": variant === "warning",
-          "bg-red-900/30 text-red-400": variant === "danger",
+          "bg-[var(--qah-success)]/10 text-[var(--qah-success)]": variant === "success",
+          "bg-[var(--qah-warning)]/10 text-[var(--qah-warning)]": variant === "warning",
+          "bg-[var(--qah-danger)]/10 text-[var(--qah-danger)]": variant === "danger",
         }
       )}
     >

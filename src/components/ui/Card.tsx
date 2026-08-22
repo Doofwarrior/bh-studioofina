@@ -10,7 +10,7 @@ export function Card({ title, subtitle, children, className, ...props }: CardPro
   return (
     <div
       className={cn(
-        "rounded-lg border bg-[var(--studio-surface)] p-4",
+        "rounded-[2px] border border-[var(--qah-border)] bg-[var(--qah-surface)] p-4",
         className
       )}
       {...props}
@@ -18,12 +18,12 @@ export function Card({ title, subtitle, children, className, ...props }: CardPro
       {(title || subtitle) && (
         <div className="mb-3">
           {title && (
-            <h3 className="text-base font-semibold text-[var(--studio-text)]">
+            <h3 className="text-base font-semibold text-[var(--qah-text)]">
               {title}
             </h3>
           )}
           {subtitle && (
-            <p className="text-sm text-[var(--studio-text-muted)]">{subtitle}</p>
+            <p className="text-sm text-[var(--qah-text-muted)]">{subtitle}</p>
           )}
         </div>
       )}

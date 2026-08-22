@@ -10,22 +10,22 @@ export function Input({ label, error, className, ...props }: InputProps) {
   return (
     <div className="space-y-1.5">
       {label && (
-        <label className="text-sm font-medium text-[var(--studio-text-muted)]">
+        <label className="text-sm font-medium text-[var(--qah-text-muted)]">
           {label}
         </label>
       )}
       <input
         className={cn(
-          "w-full rounded-md border bg-[var(--studio-surface)] px-3 py-2 text-sm text-[var(--studio-text)]",
-          "placeholder:text-[var(--studio-text-subtle)]",
-          "focus:outline-none focus:ring-1 focus:ring-[var(--studio-accent)]",
-          error && "border-[var(--studio-danger)] focus:ring-[var(--studio-danger)]",
+          "w-full rounded-[2px] border border-[var(--qah-border)] bg-[var(--qah-surface)] px-3 py-2 text-sm text-[var(--qah-text)]",
+          "placeholder:text-[var(--qah-text-subtle)]",
+          "focus:outline-none focus:ring-1 focus:ring-[var(--qah-accent)] focus:border-[var(--qah-accent)]",
+          error && "border-[var(--qah-danger)] focus:ring-[var(--qah-danger)]",
           className
         )}
         {...props}
       />
       {error && (
-        <p className="text-xs text-[var(--studio-danger)]">{error}</p>
+        <p className="text-xs text-[var(--qah-danger)]">{error}</p>
       )}
     </div>
   );
