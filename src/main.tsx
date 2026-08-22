@@ -46,26 +46,22 @@ function App() {
     init();
   }, []);
 
-  if (isChecking) {
-    return (
-      <Bootloader>
-        <BootSequence />
-      </Bootloader>
-    );
-  }
-
-  if (!workspaceReady) {
-    return <WorkspaceSetup onReady={() => setWorkspaceReady(true)} />;
-  }
-
   return (
-    <StrictMode>
-      <WorkspaceProvider>
-        <ProjectProvider>
-          <RouterProvider router={router} />
-        </ProjectProvider>
-      </WorkspaceProvider>
-    </StrictMode>
+    <Bootloader>
+      {isChecking ? (
+        <BootSequence />
+      ) : !workspaceReady ? (
+        <WorkspaceSetup onReady={() => setWorkspaceReady(true)} />
+      ) : (
+        <StrictMode>
+          <WorkspaceProvider>
+            <ProjectProvider>
+              <RouterProvider router={router} />
+            </ProjectProvider>
+          </WorkspaceProvider>
+        </StrictMode>
+      )}
+    </Bootloader>
   );
 }
 
@@ -93,7 +89,7 @@ function BootSequence() {
   ];
 
   return (
-    <div className="flex h-screen w-screen items-center justify-center bg-qah-bg font-mono-technical">
+    <div className="flex h-screen w-screen items-center justify-center bg-[rgba(3,4,3,0.55)] font-mono-technical">
       <div className="w-full max-w-lg px-6">
         {/* Header */}
         <div className="mb-8 text-center">
@@ -208,7 +204,7 @@ function WorkspaceSetup({ onReady }: { onReady: () => void }) {
   };
 
   return (
-    <div className="flex h-screen w-screen items-center justify-center bg-qah-bg font-mono-technical grid-texture">
+    <div className="flex h-screen w-screen items-center justify-center bg-[rgba(3,4,3,0.55)] font-mono-technical grid-texture">
       <div className="w-full max-w-md border border-qah-border-strong bg-qah-surface p-6">
         {/* Header */}
         <div className="mb-6 border-b border-qah-border pb-4">

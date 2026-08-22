@@ -25,7 +25,7 @@ const navItems = [
 
 export function RootLayout() {
   return (
-    <div className="flex h-screen bg-[var(--studio-bg)]">
+    <div className="relative z-10 flex h-screen bg-transparent">
       {/* Sidebar */}
       <aside className="w-64 border-r bg-[var(--studio-surface)] flex flex-col">
         {/* Logo */}
