@@ -230,7 +230,7 @@ function BootSequence() {
           <span>Secure. Systematic. Purposeful.</span>
           <span className="flex items-center gap-1.5">
             <span className="h-1.5 w-1.5 bg-qah-accent" />
-            QAL‘AT\_AL\_HAQQ\_OS
+            QAL‘AT_AL_HAQQ_OS
           </span>
         </div>
       </div>
