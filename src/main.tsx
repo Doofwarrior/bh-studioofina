@@ -88,84 +88,150 @@ function BootSequence() {
     { id: 2, label: "READY", detail: "Startup sequence complete" },
   ];
 
+  // Presentation-only mapping of the reference's five status rows onto the
+  // existing three-state `step` value. No new timers/state are introduced.
+  const statusRows = [
+    { label: "WORKSPACE", value: "READY", activeAt: 0 },
+    { label: "KNOWLEDGE", value: "SYNC", activeAt: 0 },
+    { label: "AI BRIDGE", value: "ONLINE", activeAt: 1 },
+    { label: "PROJECTS", value: "LOADED", activeAt: 1 },
+    { label: "AI SKILLS", value: "READY", activeAt: 2 },
+  ];
+
+  const progressPct = ((step + 1) / steps.length) * 100;
+  const progressPctRounded = Math.round(progressPct);
+  const segmentCount = 32;
+  const filledSegments = Math.round((progressPct / 100) * segmentCount);
+
   return (
-    <div className="flex h-screen w-screen items-center justify-center bg-[rgba(3,4,3,0.55)] font-mono-technical">
-      <div className="w-full max-w-lg px-6">
-        {/* Header */}
-        <div className="mb-8 text-center">
-          <h1 className="mb-2 text-2xl font-bold tracking-[0.25em] text-qah-text">
-            QAL&apos;AT AL-HAQQ
-          </h1>
+    <div className="relative flex h-screen w-screen items-center justify-center overflow-hidden bg-[rgba(3,4,3,0.55)] font-mono-technical">
+      {/* Corner / edge chrome */}
+      <div className="pointer-events-none absolute inset-0 hidden sm:block">
+        <div className="absolute left-6 top-6 flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-qah-text-subtle">
+          <span className="h-1.5 w-1.5 bg-qah-accent" />
+          QALAT_SYSTEM_v1.0.0
+        </div>
+        <div
+          className="absolute left-0 top-16 h-24 w-2 opacity-70"
+          style={{
+            backgroundImage:
+              "repeating-linear-gradient(45deg, var(--qah-accent-dim) 0, var(--qah-accent-dim) 4px, transparent 4px, transparent 8px)",
+          }}
+        />
+        <div className="absolute right-6 top-6 flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-qah-text-subtle">
+          <span className="h-1.5 w-1.5 bg-qah-accent" />
+          STUDIO_BOOT_SEQUENCE
+        </div>
+        <div
+          className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] uppercase tracking-[0.2em] text-qah-text-dim"
+          style={{ writingMode: "vertical-rl" }}
+        >
+          SYS_INIT_SEQUENCER / 01
+        </div>
+        <div
+          className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] uppercase tracking-[0.2em] text-qah-text-dim"
+          style={{ writingMode: "vertical-rl" }}
+        >
+          BOOT_01
+        </div>
+        <div className="absolute right-6 top-24 w-48 border border-qah-border bg-qah-surface/60 px-3 py-2 text-[10px] uppercase tracking-wider text-qah-text-subtle">
+          <div className="mb-1.5 flex items-center gap-1.5 text-qah-text-muted">
+            <span className="h-1.5 w-1.5 bg-qah-accent" />
+            GLYPH_STREAM_ACTIVE
+          </div>
+          <div className="flex justify-between py-0.5">
+            <span>SOURCE</span>
+            <span className="text-qah-text-muted">ARABIC_GLYPH_SET</span>
+          </div>
+          <div className="flex justify-between py-0.5">
+            <span>MODE</span>
+            <span className="text-qah-text-muted">MATRIX_FALL</span>
+          </div>
+          <div className="flex justify-between py-0.5">
+            <span>DENSITY</span>
+            <span className="text-qah-text-muted">MEDIUM</span>
+          </div>
+          <div className="flex justify-between py-0.5">
+            <span>SPEED</span>
+            <span className="text-qah-text-muted">1.00x</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="relative z-10 w-full max-w-xl px-6">
+        {/* Bismillah frame */}
+        <div className="relative mb-8 border border-qah-border-strong bg-qah-surface/70 px-6 py-5 text-center">
+          <span className="absolute -left-px -top-px h-2 w-2 border-l border-t border-qah-accent-dim" />
+          <span className="absolute -right-px -top-px h-2 w-2 border-r border-t border-qah-accent-dim" />
+          <span className="absolute -bottom-px -left-px h-2 w-2 border-b border-l border-qah-accent-dim" />
+          <span className="absolute -bottom-px -right-px h-2 w-2 border-b border-r border-qah-accent-dim" />
           <p
-            className="font-arabic text-sm text-qah-text-muted"
+            className="font-arabic text-xl text-qah-text"
             dir="rtl"
             lang="ar"
           >
             بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
           </p>
-          <p className="mt-2 text-xs uppercase tracking-[0.3em] text-qah-text-subtle">
-            System Initialization
+          <p className="mt-2 text-[11px] uppercase tracking-[0.3em] text-qah-text-subtle">
+            Bismillahir Rahmanir Rahim
           </p>
         </div>
 
-        {/* Progress steps */}
-        <div className="space-y-2">
-          {steps.map((s) => {
-            const isActive = step >= s.id;
-            const isCurrent = step === s.id;
+        {/* Status rows */}
+        <div className="space-y-1.5">
+          {statusRows.map((row) => {
+            const isActive = step >= row.activeAt;
             return (
               <div
-                key={s.id}
-                className={`flex items-center gap-3 border px-3 py-2.5 transition-colors ${
+                key={row.label}
+                className={`flex items-center justify-between border-b px-1 py-1.5 text-xs uppercase tracking-wider transition-colors ${
                   isActive
-                    ? "border-qah-border-strong bg-qah-surface"
-                    : "border-qah-border bg-transparent opacity-40"
+                    ? "border-qah-border text-qah-text"
+                    : "border-qah-border-mute text-qah-text-dim"
                 }`}
               >
-                <div
-                  className={`flex h-5 w-5 items-center justify-center border text-[10px] font-bold ${
-                    isActive
-                      ? "border-qah-accent text-qah-accent"
-                      : "border-qah-text-subtle text-qah-text-subtle"
-                  }`}
+                <span>{row.label}</span>
+                <span
+                  className={
+                    isActive ? "text-qah-accent" : "text-qah-text-dim"
+                  }
                 >
-                  {s.id + 1}
-                </div>
-                <div className="flex-1">
-                  <div
-                    className={`text-xs uppercase tracking-wider ${
-                      isActive ? "text-qah-text" : "text-qah-text-subtle"
-                    }`}
-                  >
-                    {s.label}
-                  </div>
-                  {isCurrent && (
-                    <div className="mt-0.5 text-[10px] text-qah-text-muted">
-                      {s.detail}
-                    </div>
-                  )}
-                </div>
-                {isCurrent && (
-                  <div className="h-1.5 w-1.5 animate-pulse bg-qah-accent" />
-                )}
+                  {isActive ? row.value : "..."}
+                </span>
               </div>
             );
           })}
         </div>
 
-        {/* Progress bar */}
-        <div className="mt-4 h-px w-full bg-qah-border">
-          <div
-            className="h-full bg-qah-accent transition-all duration-700 ease-out"
-            style={{ width: `${((step + 1) / steps.length) * 100}%` }}
-          />
+        {/* Progress */}
+        <div className="mt-6">
+          <div className="mb-2 text-xs uppercase tracking-[0.2em] text-qah-text-muted">
+            Accessing Studio_
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex flex-1 gap-[2px]">
+              {Array.from({ length: segmentCount }).map((_, i) => (
+                <span
+                  key={i}
+                  className={`h-3 flex-1 transition-colors duration-300 ${
+                    i < filledSegments ? "bg-qah-accent" : "bg-qah-border"
+                  }`}
+                />
+              ))}
+            </div>
+            <span className="w-10 text-right text-sm font-bold text-qah-text">
+              {progressPctRounded}%
+            </span>
+          </div>
         </div>
 
         {/* Technical footer */}
-        <div className="mt-6 flex justify-between text-[10px] text-qah-text-subtle uppercase tracking-wider">
-          <span>Build: 1.0.0</span>
-          <span>Arch: Browser</span>
-          <span>Mode: Workspace</span>
+        <div className="mt-8 flex items-center justify-between text-[10px] uppercase tracking-wider text-qah-text-subtle">
+          <span>Secure. Systematic. Purposeful.</span>
+          <span className="flex items-center gap-1.5">
+            <span className="h-1.5 w-1.5 bg-qah-accent" />
+            QAL‘AT_AL_HAQQ_OS
+          </span>
         </div>
       </div>
     </div>
