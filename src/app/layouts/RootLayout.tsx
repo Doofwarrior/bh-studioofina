@@ -26,7 +26,7 @@ export function RootLayout() {
   return (
     <div className="qah-shell relative z-10 min-h-screen bg-transparent">
       <header className="qah-system-bar">
-        <div className="qah-system-bar__identity">
+        <div className="qah-system-bar__identity gap-2">
           <span>QAL&apos;AT AL-HAQQ</span>
           <span className="qah-system-bar__identity-arabic font-arabic" lang="ar" dir="rtl">قَلْعَةُ الْحَقّ</span>
         </div>
