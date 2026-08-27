@@ -9,7 +9,7 @@ import {
   Package,
   Settings,
   Archive,
-  Command,
+  Search,
 } from "lucide-react";
 
 const navItems = [
@@ -30,12 +30,17 @@ export function RootLayout() {
           <span>QAL&apos;AT AL-HAQQ</span>
           <span className="qah-system-bar__identity-arabic font-arabic" lang="ar" dir="rtl">قَلْعَةُ الْحَقّ</span>
         </div>
-        <div className="qah-system-bar__command" aria-label="Command workspace status">
-          <Command size={13} aria-hidden="true" />
-          <span>PERSONAL COMMAND WORKSPACE</span>
+        <div
+          className="qah-system-bar__command"
+          aria-label="Global search reserved for a later v1 slice"
+          title="Global search is not implemented yet"
+        >
+          <Search size={13} aria-hidden="true" />
+          <span>SEARCH INDEX / PENDING</span>
         </div>
         <div className="qah-system-bar__utilities">
           <span className="qah-system-bar__status"><i aria-hidden="true" />{isConfigured ? "WORKSPACE READY" : "WORKSPACE REQUIRED"}</span>
+          <span className="grid h-6 w-6 place-items-center border border-qah-border-strong font-mono text-[9px] text-qah-accent" aria-label="QAL'AT system mark">QH</span>
         </div>
       </header>
 
@@ -43,24 +48,22 @@ export function RootLayout() {
         <aside className="qah-navigation-rail">
           <div className="qah-navigation-rail__label">NAV / 01</div>
           <nav className="qah-navigation-rail__links" aria-label="Primary navigation">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.to === "/"}
-              className={({ isActive }) =>
-                cn(
-                  "qah-navigation-rail__link",
-                  isActive
-                    ? "qah-navigation-rail__link--active"
-                    : ""
-                )
-              }
-            >
-              <item.icon size={16} />
-              {item.label}
-            </NavLink>
-          ))}
+            {navItems.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.to === "/"}
+                className={({ isActive }) =>
+                  cn(
+                    "qah-navigation-rail__link",
+                    isActive ? "qah-navigation-rail__link--active" : ""
+                  )
+                }
+              >
+                <item.icon size={16} />
+                {item.label}
+              </NavLink>
+            ))}
           </nav>
           <div className="qah-navigation-rail__footer">
             <span>V1.0.0</span>
