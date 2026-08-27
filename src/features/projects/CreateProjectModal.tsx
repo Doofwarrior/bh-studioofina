@@ -24,17 +24,20 @@ export function CreateProjectModal({
   const handleCreate = () => {
     if (!name.trim()) return;
 
+    const now = new Date().toISOString();
     const manifest: ProjectManifest = {
       id: crypto.randomUUID(),
       name: name.trim(),
       slug: slugify(name),
       type,
       description: description.trim() || undefined,
-      createdAt: new Date().toISOString(),
-      modifiedAt: new Date().toISOString(),
+      createdAt: now,
+      modifiedAt: now,
       version: "1.0",
       settings: { defaultExportFormat: "reel" },
       tags: [],
+      status: "active",
+      progress: 0,
     };
 
     onCreate(manifest);
