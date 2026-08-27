@@ -11,10 +11,12 @@ import {
   Settings,
   Archive,
   Search,
+  LibraryBig,
 } from "lucide-react";
 
 const navItems = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/content", label: "Content Vault", icon: LibraryBig },
   { to: "/prompts", label: "Prompt Library", icon: MessageSquare },
   { to: "/exports", label: "Exports", icon: Package },
   { to: "/decisions", label: "Decision Archive", icon: Archive, requiresProject: true },
