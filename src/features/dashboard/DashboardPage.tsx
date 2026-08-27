@@ -111,24 +111,25 @@ export function DashboardPage({ onOpenSettings }: DashboardPageProps) {
 
       <div className="relative z-10 border-b border-qah-border-strong px-4 py-3 sm:px-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-qah-text-subtle">
-              01 / DASHBOARD
+              01 / COMMAND CENTER
             </p>
             <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <h1 className="text-[clamp(1.8rem,4vw,3.2rem)] font-semibold leading-none tracking-[-0.055em] text-qah-text">
-                Workspace Overview
+                DASHBOARD
               </h1>
               <span className="font-arabic-kufic text-sm text-qah-accent" lang="ar" dir="rtl">
                 لوحة القيادة
               </span>
             </div>
-            <div className="mt-3 flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1 font-mono text-[10px] uppercase tracking-[0.12em] text-qah-text-subtle">
-              <span className="flex items-center gap-2">
+            <p className="mt-2 text-sm text-qah-text-muted">Workspace Overview</p>
+            <div className="mt-3 grid min-w-0 gap-1 font-mono text-[10px] uppercase tracking-[0.12em] text-qah-text-subtle sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center sm:gap-x-4">
+              <span className="flex items-center gap-2 whitespace-nowrap">
                 <i className={`h-1.5 w-1.5 ${isConfigured ? "bg-qah-accent" : "bg-qah-warning"}`} aria-hidden="true" />
                 {isConfigured ? "WORKSPACE LINKED" : "WORKSPACE REQUIRED"}
               </span>
-              <span className="max-w-[38rem] truncate text-qah-text-muted">
+              <span className="min-w-0 truncate text-qah-text-muted">
                 {isConfigured ? workspacePath : "NO LOCAL WORKSPACE SELECTED"}
               </span>
             </div>
@@ -197,21 +198,21 @@ export function DashboardPage({ onOpenSettings }: DashboardPageProps) {
         </div>
 
         {projects.length === 0 ? (
-          <div className="grid min-h-[300px] place-items-center border border-dashed border-qah-border-strong bg-[rgba(7,10,7,0.72)] px-6 py-12 text-center">
+          <div className="grid min-h-[240px] place-items-center border border-dashed border-qah-border-strong bg-[rgba(7,10,7,0.72)] px-6 py-9 text-center">
             <div className="max-w-md">
               <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-qah-text-subtle">
                 INDEX / 00
               </span>
-              <div className="mx-auto mt-5 grid h-12 w-12 place-items-center border border-qah-border-strong text-qah-accent">
+              <div className="mx-auto mt-4 grid h-11 w-11 place-items-center border border-qah-border-strong text-qah-accent">
                 <FolderOpen size={20} />
               </div>
-              <p className="mt-4 text-sm font-semibold uppercase tracking-[0.12em] text-qah-text">
+              <p className="mt-3 text-sm font-semibold uppercase tracking-[0.12em] text-qah-text">
                 No project records
               </p>
               <p className="mt-2 text-sm leading-6 text-qah-text-muted">
                 Initialize the workspace index by creating the first project record.
               </p>
-              <Button className="mt-5" onClick={() => setIsCreateModalOpen(true)}>
+              <Button className="mt-4" onClick={() => setIsCreateModalOpen(true)}>
                 <Plus size={15} className="mr-2" />
                 Create Project
                 <ArrowUpRight size={13} className="ml-2" />
