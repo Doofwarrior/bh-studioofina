@@ -4,6 +4,13 @@ import { z } from "zod";
 // Project Manifest
 // ───────────────────────────────────────────
 
+export const ProjectStatusSchema = z.enum([
+  "active",
+  "paused",
+  "blocked",
+  "completed",
+]);
+
 export const ProjectManifestSchema = z.object({
   id: z.string().uuid(),
   name: z.string().min(1).max(100),
@@ -19,8 +26,13 @@ export const ProjectManifestSchema = z.object({
     aiModelPreference: z.string().optional(),
   }),
   tags: z.array(z.string()),
+  status: ProjectStatusSchema.optional(),
+  progress: z.number().int().min(0).max(100).optional(),
+  nextAction: z.string().max(240).optional(),
+  targetDate: z.string().optional(),
 });
 
+export type ProjectStatus = z.infer<typeof ProjectStatusSchema>;
 export type ProjectManifest = z.infer<typeof ProjectManifestSchema>;
 
 // ───────────────────────────────────────────
