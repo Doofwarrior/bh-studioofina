@@ -9,15 +9,15 @@ interface ProjectListProps {
 export function ProjectList({ projects, onSelectProject }: ProjectListProps) {
   if (projects.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-[var(--studio-text-muted)]">
+      <div className="border border-dashed border-qah-border-strong py-12 text-center text-qah-text-muted">
         <p className="text-sm">No projects yet.</p>
-        <p className="text-xs">Create your first project to get started.</p>
+        <p className="mt-1 text-xs text-qah-text-subtle">Create the first project record to initialize the index.</p>
       </div>
     );
   }
 
   return (
-    <div className="dashboard-project-list">
+    <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
       {projects.map((project) => (
         <ProjectCard
           key={project.id}
