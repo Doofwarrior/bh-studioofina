@@ -120,7 +120,7 @@ function BootSequence() {
         />
         <div className="absolute right-6 top-6 flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-qah-text-subtle">
           <span className="h-1.5 w-1.5 bg-qah-accent" />
-          STUDIO_BOOT_SEQUENCE
+          QALAT_BOOT_SEQUENCE
         </div>
         <div
           className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] uppercase tracking-[0.2em] text-qah-text-dim"
@@ -177,6 +177,23 @@ function BootSequence() {
           </p>
         </div>
 
+        {/* Product identity, retained as the central boot reference hierarchy. */}
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl font-bold tracking-[0.08em] text-qah-text sm:text-4xl">
+            QAL&apos;AT AL-HAQQ
+          </h1>
+          <p
+            className="mt-2 font-arabic text-2xl text-qah-accent sm:text-3xl"
+            dir="rtl"
+            lang="ar"
+          >
+            قَلْعَةُ الْحَقّ
+          </p>
+          <p className="mt-2 text-xs uppercase tracking-[0.32em] text-qah-text-subtle">
+            The Citadel of Truth
+          </p>
+        </div>
+
         {/* Status rows */}
         <div className="space-y-1.5">
           {statusRows.map((row) => {
@@ -206,7 +223,7 @@ function BootSequence() {
         {/* Progress */}
         <div className="mt-6">
           <div className="mb-2 text-xs uppercase tracking-[0.2em] text-qah-text-muted">
-            Accessing Studio_
+            Accessing QAL&apos;AT_
           </div>
           <div className="flex items-center gap-3">
             <div className="flex flex-1 gap-[2px]">

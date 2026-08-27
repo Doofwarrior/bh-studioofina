@@ -1,5 +1,5 @@
 import { ProjectDetailPage } from "@/features/projects/ProjectDetailPage";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useProjectContext } from "@/app/providers/ProjectProvider";
 import { deleteProject } from "@/lib/storage";
 
@@ -8,11 +8,7 @@ export function ProjectPage() {
   const navigate = useNavigate();
 
   if (!activeProject) {
-    return (
-      <div className="flex h-full items-center justify-center text-[var(--studio-text-muted)]">
-        <p>No project selected.</p>
-      </div>
-    );
+    return <Navigate to="/" replace />;
   }
 
   const handleBack = () => {

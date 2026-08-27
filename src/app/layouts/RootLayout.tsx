@@ -1,18 +1,15 @@
-/**
- * BH Studio v1.0 — Root Layout
- *
- * The top-level layout with sidebar navigation.
- */
+/** Top-level application shell with primary navigation. */
 
 import { Outlet, NavLink } from "react-router-dom";
 import { cn } from "@/utils/cn";
+import { useWorkspace } from "@/hooks/useWorkspace";
 import {
   LayoutDashboard,
   MessageSquare,
   Package,
   Settings,
-  Sparkles,
   Archive,
+  Command,
 } from "lucide-react";
 
 const navItems = [
@@ -24,39 +21,39 @@ const navItems = [
 ];
 
 export function RootLayout() {
-  return (
-    <div className="relative z-10 flex h-screen bg-transparent">
-      {/* Sidebar */}
-      <aside className="w-64 border-r bg-[var(--studio-surface)] flex flex-col">
-        {/* Logo */}
-        <div className="flex items-center gap-2 border-b p-4">
-          <Sparkles size={20} className="text-[var(--studio-accent)]" />
-          <div className="flex flex-col">
-            <span className="text-sm font-bold tracking-[0.1em] text-[var(--studio-text)]">
-              QAL&apos;AT AL-HAQQ
-            </span>
-            <span
-              className="text-[10px] font-arabic text-[var(--studio-text-muted)]"
-              dir="rtl"
-              lang="ar"
-            >
-              قَلْعَةُ الْحَقّ
-            </span>
-          </div>
-        </div>
+  const { isConfigured } = useWorkspace();
 
-        {/* Navigation */}
-        <nav className="flex-1 p-2 space-y-1">
+  return (
+    <div className="qah-shell relative z-10 min-h-screen bg-transparent">
+      <header className="qah-system-bar">
+        <div className="qah-system-bar__identity">
+          <span>QAL&apos;AT AL-HAQQ</span>
+          <span className="qah-system-bar__identity-arabic font-arabic" lang="ar" dir="rtl">قَلْعَةُ الْحَقّ</span>
+        </div>
+        <div className="qah-system-bar__command" aria-label="Command workspace status">
+          <Command size={13} aria-hidden="true" />
+          <span>LOCAL WORKSPACE / COMMAND INDEX</span>
+        </div>
+        <div className="qah-system-bar__utilities">
+          <span className="qah-system-bar__status"><i aria-hidden="true" />{isConfigured ? "WORKSPACE READY" : "WORKSPACE REQUIRED"}</span>
+        </div>
+      </header>
+
+      <div className="qah-shell__body">
+        <aside className="qah-navigation-rail">
+          <div className="qah-navigation-rail__label">NAV / 01</div>
+          <nav className="qah-navigation-rail__links" aria-label="Primary navigation">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
+              end={item.to === "/"}
               className={({ isActive }) =>
                 cn(
-                  "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                  "qah-navigation-rail__link",
                   isActive
-                    ? "bg-[var(--studio-accent)]/10 text-[var(--studio-accent)]"
-                    : "text-[var(--studio-text-muted)] hover:bg-[var(--studio-surface-elevated)] hover:text-[var(--studio-text)]"
+                    ? "qah-navigation-rail__link--active"
+                    : ""
                 )
               }
             >
@@ -64,19 +61,17 @@ export function RootLayout() {
               {item.label}
             </NavLink>
           ))}
-        </nav>
+          </nav>
+          <div className="qah-navigation-rail__footer">
+            <span>V1.0.0</span>
+            <span><i aria-hidden="true" />{isConfigured ? "WORKSPACE READY" : "WORKSPACE REQUIRED"}</span>
+          </div>
+        </aside>
 
-        {/* Footer */}
-        <div className="border-t p-4 text-xs text-[var(--studio-text-subtle)]">
-          <p>v1.0.0</p>
-          <p>Workspace ready</p>
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 overflow-auto p-6">
-        <Outlet />
-      </main>
+        <main className="qah-shell__main">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }
