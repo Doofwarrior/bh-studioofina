@@ -1,5 +1,5 @@
 /**
- * BH Studio v1.0 — Router Configuration
+ * QAL‘AT AL-HAQQ v1 — Router Configuration
  */
 
 import { createBrowserRouter, Navigate, useNavigate } from "react-router-dom";
@@ -11,6 +11,7 @@ import { PromptLibraryPage } from "@/app/pages/PromptLibraryPage";
 import { ExportsPage } from "@/app/pages/ExportsPage";
 import { SettingsPage } from "@/app/pages/SettingsPage";
 import { DecisionArchivePage } from "@/features/decisions/DecisionArchivePage";
+import { ContentVaultPage } from "@/features/content/ContentVaultPage";
 import { useProjectContext } from "@/app/providers/ProjectProvider";
 
 function DashboardRoute() {
@@ -45,6 +46,10 @@ export function createAppRouter() {
               element: <ProjectPage />,
             },
           ],
+        },
+        {
+          path: "content",
+          element: <ContentVaultPage />,
         },
         {
           path: "prompts",
