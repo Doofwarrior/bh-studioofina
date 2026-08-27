@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/Badge";
 import { formatDate } from "@/utils/formatDate";
 import type { ProjectManifest } from "@/types/project";
-import { Folder, Clock, ArrowUpRight } from "lucide-react";
+import { Folder, Clock, ArrowUpRight, Target } from "lucide-react";
 
 interface ProjectCardProps {
   project: ProjectManifest;
@@ -9,6 +9,9 @@ interface ProjectCardProps {
 }
 
 export function ProjectCard({ project, onClick }: ProjectCardProps) {
+  const status = project.status ?? "active";
+  const progress = project.progress ?? 0;
+
   return (
     <button
       type="button"
@@ -42,6 +45,20 @@ export function ProjectCard({ project, onClick }: ProjectCardProps) {
               {project.description}
             </p>
           )}
+
+          <div className="mt-3 grid grid-cols-[auto_1fr_auto] items-center gap-2 border-t border-qah-border pt-2 font-mono text-[9px] uppercase tracking-[0.1em] text-qah-text-subtle">
+            <span className="flex items-center gap-1.5 text-qah-text-muted"><Target size={11} />{status}</span>
+            <div className="h-1 bg-qah-border" aria-label={`Progress ${progress}%`}>
+              <div className="h-full bg-qah-accent" style={{ width: `${progress}%` }} />
+            </div>
+            <span>{progress}%</span>
+          </div>
+
+          {project.nextAction && (
+            <p className="mt-2 truncate text-xs text-qah-text-muted">
+              Next: {project.nextAction}
+            </p>
+          )}
         </div>
       </div>
 
@@ -51,7 +68,7 @@ export function ProjectCard({ project, onClick }: ProjectCardProps) {
           {formatDate(project.modifiedAt)}
         </span>
         <span className="truncate text-right sm:text-left">
-          {project.tags.length > 0 ? project.tags.join(" / ") : "NO TAGS"}
+          {project.targetDate ? `TARGET ${project.targetDate}` : project.tags.length > 0 ? project.tags.join(" / ") : "NO TARGET"}
         </span>
         <span className="col-span-2 text-right text-qah-accent sm:col-span-1">OPEN RECORD</span>
       </div>
