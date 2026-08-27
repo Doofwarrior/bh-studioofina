@@ -1,10 +1,11 @@
 import { ProjectDetailPage } from "@/features/projects/ProjectDetailPage";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useProjectContext } from "@/app/providers/ProjectProvider";
-import { deleteProject } from "@/lib/storage";
+import { deleteProject, writeProjectManifest } from "@/lib/storage";
+import type { ProjectManifest } from "@/types/project";
 
 export function ProjectPage() {
-  const { activeProject, clearProject } = useProjectContext();
+  const { activeProject, clearProject, loadProject } = useProjectContext();
   const navigate = useNavigate();
 
   if (!activeProject) {
@@ -25,11 +26,17 @@ export function ProjectPage() {
     }
   };
 
+  const handleUpdate = async (manifest: ProjectManifest) => {
+    await writeProjectManifest(manifest);
+    loadProject(manifest);
+  };
+
   return (
     <ProjectDetailPage
       project={activeProject}
       onBack={handleBack}
       onDelete={handleDelete}
+      onUpdate={handleUpdate}
     />
   );
 }
