@@ -32,7 +32,7 @@ export function RootLayout() {
         </div>
         <div className="qah-system-bar__command" aria-label="Command workspace status">
           <Command size={13} aria-hidden="true" />
-          <span>LOCAL WORKSPACE / COMMAND INDEX</span>
+          <span>PERSONAL COMMAND WORKSPACE</span>
         </div>
         <div className="qah-system-bar__utilities">
           <span className="qah-system-bar__status"><i aria-hidden="true" />{isConfigured ? "WORKSPACE READY" : "WORKSPACE REQUIRED"}</span>
