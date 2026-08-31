@@ -1,6 +1,7 @@
 /** Top-level application shell with primary navigation. */
 
-import { Outlet, NavLink } from "react-router-dom";
+import { useState } from "react";
+import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { cn } from "@/utils/cn";
 import { useWorkspace } from "@/hooks/useWorkspace";
 import { useProjectContext } from "@/app/providers/ProjectProvider";
@@ -12,11 +13,15 @@ import {
   Archive,
   Search,
   LibraryBig,
+  ListTodo,
+  Zap,
 } from "lucide-react";
 
 const navItems = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
   { to: "/content", label: "Content Vault", icon: LibraryBig },
+  { to: "/planner", label: "Planner", icon: ListTodo },
+  { to: "/capture", label: "Quick Capture", icon: Zap },
   { to: "/prompts", label: "Prompt Library", icon: MessageSquare },
   { to: "/exports", label: "Exports", icon: Package },
   { to: "/decisions", label: "Decision Archive", icon: Archive, requiresProject: true },
@@ -26,6 +31,14 @@ const navItems = [
 export function RootLayout() {
   const { isConfigured } = useWorkspace();
   const { activeProject } = useProjectContext();
+  const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
+
+  const handleSearch = (event: React.FormEvent) => {
+    event.preventDefault();
+    const query = searchQuery.trim();
+    navigate(query ? `/search?q=${encodeURIComponent(query)}` : "/search");
+  };
 
   return (
     <div className="qah-shell relative z-10 min-h-screen bg-transparent">
@@ -34,14 +47,16 @@ export function RootLayout() {
           <span>QAL&apos;AT AL-HAQQ</span>
           <span className="qah-system-bar__identity-arabic font-arabic" lang="ar" dir="rtl">قَلْعَةُ الْحَقّ</span>
         </div>
-        <div
-          className="qah-system-bar__command"
-          aria-label="Global search reserved for a later v1 slice"
-          title="Global search is not implemented yet"
-        >
+        <form className="qah-system-bar__command" onSubmit={handleSearch} role="search" aria-label="Global search">
           <Search size={13} aria-hidden="true" />
-          <span>SEARCH INDEX / PENDING</span>
-        </div>
+          <input
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            placeholder="SEARCH QAL'AT"
+            className="min-w-0 flex-1 bg-transparent font-mono text-[9px] uppercase tracking-[0.12em] text-qah-text outline-none placeholder:text-qah-text-subtle"
+            aria-label="Search projects, content and planner records"
+          />
+        </form>
         <div className="qah-system-bar__utilities">
           <span className="qah-system-bar__status"><i aria-hidden="true" />{isConfigured ? "WORKSPACE READY" : "WORKSPACE REQUIRED"}</span>
           <span className="grid h-6 w-6 place-items-center border border-qah-border-strong font-mono text-[9px] text-qah-accent" aria-label="QAL'AT system mark">QH</span>
