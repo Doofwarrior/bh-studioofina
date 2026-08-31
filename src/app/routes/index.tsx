@@ -12,6 +12,9 @@ import { ExportsPage } from "@/app/pages/ExportsPage";
 import { SettingsPage } from "@/app/pages/SettingsPage";
 import { DecisionArchivePage } from "@/features/decisions/DecisionArchivePage";
 import { ContentVaultPage } from "@/features/content/ContentVaultPage";
+import { PlannerPage } from "@/features/planner/PlannerPage";
+import { QuickCapturePage } from "@/features/capture/QuickCapturePage";
+import { GlobalSearchPage } from "@/features/search/GlobalSearchPage";
 import { useProjectContext } from "@/app/providers/ProjectProvider";
 
 function DashboardRoute() {
@@ -50,6 +53,18 @@ export function createAppRouter() {
         {
           path: "content",
           element: <ContentVaultPage />,
+        },
+        {
+          path: "planner",
+          element: <PlannerPage />,
+        },
+        {
+          path: "capture",
+          element: <QuickCapturePage />,
+        },
+        {
+          path: "search",
+          element: <GlobalSearchPage />,
         },
         {
           path: "prompts",
