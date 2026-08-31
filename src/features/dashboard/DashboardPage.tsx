@@ -16,6 +16,8 @@ import {
   Target,
   ArrowUpRight,
   Activity,
+  ListTodo,
+  Zap,
 } from "lucide-react";
 
 interface DashboardPageProps {
@@ -135,10 +137,18 @@ export function DashboardPage({ onOpenSettings }: DashboardPageProps) {
             </div>
           </div>
 
-          <div className="flex shrink-0 items-center gap-2 border border-qah-border bg-[rgba(3,5,3,0.72)] p-1.5">
+          <div className="flex shrink-0 flex-wrap items-center gap-2 border border-qah-border bg-[rgba(3,5,3,0.72)] p-1.5">
             <span className="hidden px-2 font-mono text-[9px] uppercase tracking-[0.16em] text-qah-text-subtle sm:inline">
               QUICK ACTIONS
             </span>
+            <Button variant="secondary" onClick={() => navigate("/capture")}>
+              <Zap size={15} className="mr-2" />
+              Capture
+            </Button>
+            <Button variant="secondary" onClick={() => navigate("/planner")}>
+              <ListTodo size={15} className="mr-2" />
+              Planner
+            </Button>
             <Button variant="secondary" onClick={onOpenSettings}>
               <Settings size={15} className="mr-2" />
               Settings
