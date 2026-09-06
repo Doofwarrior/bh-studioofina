@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { useProjectContext } from "@/app/providers/ProjectProvider";
 import { VisualAssetRegistry } from "./registry/VisualAssetRegistry";
+import { RuleRegistry } from "./rules/RuleRegistry";
 
 const plannedModules = [
   "Visual Continuity",
@@ -52,6 +53,8 @@ export function HaqVersePage() {
       </Card>
 
       <VisualAssetRegistry projectId={activeProject.id} />
+
+      <RuleRegistry projectId={activeProject.id} />
 
       <section aria-labelledby="haqverse-planned-modules">
         <div className="mb-3 flex items-center justify-between border-b border-qah-border pb-3">

@@ -6,7 +6,8 @@ import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { HaqVerseVisualAssetSchema } from "../domain/schemas";
 import type { HaqVerseVisualAsset } from "../domain/types";
-import { findContinuityTagConflict, loadVisualAssets, saveVisualAssets } from "./registryState";
+import { loadVisualAssets, saveVisualAssets } from "./registryState";
+import { findProjectTagConflict } from "../rules/ruleState";
 
 type RegistryTab = "CHARACTER" | "LOCATION" | "PROP";
 type FormState = Record<string, string>;
@@ -60,8 +61,8 @@ export function VisualAssetRegistry({ projectId }: { projectId: string }) {
     const name = field(form, "name").trim();
     const continuityTag = field(form, "continuityTag").trim();
     if (!name || !continuityTag) { setError("Name and continuity tag are required."); return; }
-    const conflict = findContinuityTagConflict(assets, continuityTag, editing?.id);
-    if (conflict) { setError(`${continuityTag} is already assigned to a ${labelFor(conflict.kind).toLowerCase()}.`); return; }
+    const conflict = findProjectTagConflict(projectId, continuityTag, editing?.id);
+    if (conflict) { setError(`${continuityTag} is already assigned to an existing HaqVerse record.`); return; }
     const now = new Date().toISOString();
     const historical = { facts: list(field(form, "facts")), sourceNotes: list(field(form, "sourceNotes")), disputedDetails: list(field(form, "disputedDetails")), unknownDetails: list(field(form, "unknownDetails")), confidence: field(form, "confidence") || "UNKNOWN" } as const;
     const cinematic = { interpretationNotes: list(field(form, "interpretationNotes")), lockedChoices: list(field(form, "lockedChoices")), forbiddenChanges: list(field(form, "forbiddenChanges")) };

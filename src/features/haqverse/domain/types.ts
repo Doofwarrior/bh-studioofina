@@ -178,15 +178,47 @@ export interface HaqVerseWorldRule {
   name: string;
   continuityTag: ContinuityTag;
   status: HaqVerseAssetStatus;
+  createdAt: string;
+  updatedAt: string;
   era?: string;
   region?: string;
+  productionContext?: string;
+  description?: string;
   visualPhilosophy?: string;
-  palette?: string[];
+  primaryPalette?: string[];
+  secondaryPalette?: string[];
+  contrastGrammar?: string;
+  textureGrammar?: string;
   lightingGrammar?: string;
+  lensGrammar?: string;
   cameraGrammar?: string;
+  atmosphereGrammar?: string;
   architectureRules?: string[];
   wardrobeRules?: string[];
+  propRules?: string[];
+  environmentRules?: string[];
+  permittedStylization?: string[];
   prohibitedElements?: string[];
+  prohibitedCliches?: string[];
+  notes?: string;
+}
+
+export type HaqVerseMotionReferenceFrame = "WORLD" | "CAMERA" | "SUBJECT" | "RELATIVE";
+
+export interface HaqVerseMotionVector {
+  value: string;
+  referenceFrame: HaqVerseMotionReferenceFrame;
+}
+
+export interface HaqVerseSubjectMotionRule {
+  subjectReference: string;
+  initialRelationshipToCamera?: string;
+  direction?: HaqVerseMotionVector;
+  relativeSpeed?: string;
+  depthTrajectory?: string;
+  scaleBehavior?: string;
+  allowedMotion?: string[];
+  prohibitedMotion?: string[];
   notes?: string;
 }
 
@@ -196,13 +228,15 @@ export interface HaqVerseMotionRule {
   name: string;
   continuityTag: ContinuityTag;
   status: HaqVerseAssetStatus;
-  globalVector?: string;
-  cameraVector?: string;
-  environmentRelativeVector?: string;
-  subjectMotionRules?: string[];
-  depthBehavior?: string;
+  createdAt: string;
+  updatedAt: string;
+  globalVector?: HaqVerseMotionVector;
+  cameraVector?: HaqVerseMotionVector;
+  environmentRelativeVector?: HaqVerseMotionVector;
+  subjectMotionRules?: HaqVerseSubjectMotionRule[];
+  depthBehavior?: string[];
   interactionConstraints?: string[];
-  exitBehavior?: string;
+  exitBehavior?: string[];
   prohibitedMotion?: string[];
   notes?: string;
 }
