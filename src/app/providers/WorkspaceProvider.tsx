@@ -11,6 +11,7 @@ interface WorkspaceContextValue {
   workspacePath: string;
   isConfigured: boolean;
   connectWorkspace: () => Promise<boolean>;
+  accessIssue: ReturnType<typeof useWorkspace>["accessIssue"];
 }
 
 const WorkspaceContext = createContext<WorkspaceContextValue | null>(null);

@@ -24,8 +24,9 @@ const navItems = [
 ];
 
 export function RootLayout() {
-  const { isConfigured } = useWorkspace();
+  const { workspacePath, isConfigured } = useWorkspace();
   const { activeProject } = useProjectContext();
+  const isLocalMode = !isConfigured && workspacePath === "LOCAL BROWSER STORAGE";
 
   return (
     <div className="qah-shell relative z-10 min-h-screen bg-transparent">
@@ -43,7 +44,7 @@ export function RootLayout() {
           <span>SEARCH INDEX / PENDING</span>
         </div>
         <div className="qah-system-bar__utilities">
-          <span className="qah-system-bar__status"><i aria-hidden="true" />{isConfigured ? "WORKSPACE READY" : "WORKSPACE REQUIRED"}</span>
+          <span className="qah-system-bar__status"><i aria-hidden="true" />{isConfigured ? "WORKSPACE READY" : isLocalMode ? "LOCAL MODE" : "WORKSPACE REQUIRED"}</span>
           <span className="grid h-6 w-6 place-items-center border border-qah-border-strong font-mono text-[9px] text-qah-accent" aria-label="QAL'AT system mark">QH</span>
         </div>
       </header>
@@ -92,7 +93,7 @@ export function RootLayout() {
           </nav>
           <div className="qah-navigation-rail__footer">
             <span>V1.0.0</span>
-            <span><i aria-hidden="true" />{isConfigured ? "WORKSPACE READY" : "WORKSPACE REQUIRED"}</span>
+            <span><i aria-hidden="true" />{isConfigured ? "WORKSPACE READY" : isLocalMode ? "LOCAL MODE" : "WORKSPACE REQUIRED"}</span>
           </div>
         </aside>
 

@@ -102,6 +102,7 @@ export function DashboardPage({ onOpenSettings }: DashboardPageProps) {
   }
 
   const workspaceState = isConfigured ? "ONLINE" : "REQUIRED";
+  const isLocalMode = !isConfigured && workspacePath === "LOCAL BROWSER STORAGE";
   const contextState = activeProject ? "SELECTED" : "NONE";
   const indexState = projects.length > 0 ? "READY" : "EMPTY";
 
@@ -127,10 +128,10 @@ export function DashboardPage({ onOpenSettings }: DashboardPageProps) {
             <div className="mt-3 grid min-w-0 gap-1 font-mono text-[10px] uppercase tracking-[0.12em] text-qah-text-subtle sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center sm:gap-x-4">
               <span className="flex items-center gap-2 whitespace-nowrap">
                 <i className={`h-1.5 w-1.5 ${isConfigured ? "bg-qah-accent" : "bg-qah-warning"}`} aria-hidden="true" />
-                {isConfigured ? "WORKSPACE LINKED" : "WORKSPACE REQUIRED"}
+                {isConfigured ? "WORKSPACE LINKED" : isLocalMode ? "LOCAL BROWSER STORAGE" : "WORKSPACE REQUIRED"}
               </span>
               <span className="min-w-0 truncate text-qah-text-muted">
-                {isConfigured ? workspacePath : "NO LOCAL WORKSPACE SELECTED"}
+                {isConfigured ? workspacePath : isLocalMode ? "Project data is stored in this browser" : "NO LOCAL WORKSPACE SELECTED"}
               </span>
             </div>
           </div>
@@ -163,7 +164,7 @@ export function DashboardPage({ onOpenSettings }: DashboardPageProps) {
           index="M02"
           label="Workspace"
           detail="Current storage connection"
-          value={workspaceState}
+          value={isLocalMode ? "LOCAL" : workspaceState}
           icon={Database}
         />
         <MetricModule
