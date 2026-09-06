@@ -12,6 +12,7 @@ import { ExportsPage } from "@/app/pages/ExportsPage";
 import { SettingsPage } from "@/app/pages/SettingsPage";
 import { DecisionArchivePage } from "@/features/decisions/DecisionArchivePage";
 import { ContentVaultPage } from "@/features/content/ContentVaultPage";
+import { HaqVersePage } from "@/features/haqverse/HaqVersePage";
 import { useProjectContext } from "@/app/providers/ProjectProvider";
 
 function DashboardRoute() {
@@ -44,6 +45,10 @@ export function createAppRouter() {
             {
               index: true,
               element: <ProjectPage />,
+            },
+            {
+              path: "haqverse",
+              element: <HaqVersePage />,
             },
           ],
         },
