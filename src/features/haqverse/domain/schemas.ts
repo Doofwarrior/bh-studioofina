@@ -72,6 +72,42 @@ export const HaqVerseAssetBaseSchema = z.object({
   notes: z.string().optional(),
 });
 
+const CharacterHistoricalProfileSchema = z.object({
+  era: z.string().optional(), region: z.string().optional(), role: z.string().optional(), approximateAge: z.string().optional(),
+});
+const CharacterCinematicProfileSchema = z.object({
+  build: z.string().optional(), heightImpression: z.string().optional(), silhouette: z.string().optional(), facialTreatment: z.string().optional(), hair: z.string().optional(), beard: z.string().optional(), headwear: z.string().optional(), innerGarment: z.string().optional(), outerGarment: z.string().optional(), lowerGarment: z.string().optional(), footwear: z.string().optional(), armor: z.string().optional(), weapons: z.string().optional(), accessories: z.string().optional(), materials: stringList.optional(), primaryColors: stringList.optional(), secondaryColors: stringList.optional(), weathering: z.string().optional(), recurringMotif: z.string().optional(),
+});
+const DepictionSchema = z.object({
+  figureType: z.string().optional(), facePolicy: z.string().optional(), dignityRequirements: stringList.optional(), modestyRequirements: stringList.optional(), sensitivityNotes: stringList.optional(),
+});
+const LocationHistoricalProfileSchema = z.object({
+  era: z.string().optional(), dateRange: z.string().optional(), region: z.string().optional(), modernEquivalent: z.string().optional(),
+});
+const LocationEnvironmentSchema = z.object({
+  environmentType: z.string().optional(), terrain: z.string().optional(), groundTexture: z.string().optional(), architecture: z.string().optional(), constructionMaterials: stringList.optional(), vegetation: z.string().optional(), climate: z.string().optional(), weatherDefaults: z.string().optional(), atmosphere: z.string().optional(), lightingRecipe: z.string().optional(), populationRules: stringList.optional(), recurringProps: stringList.optional(), primaryPalette: stringList.optional(), secondaryPalette: stringList.optional(), prohibitedElements: stringList.optional(),
+});
+const PropHistoricalProfileSchema = z.object({ era: z.string().optional(), region: z.string().optional(), historicalEvidence: stringList.optional() });
+const PropCinematicContinuitySchema = z.object({
+  objectCategory: z.string().optional(), owner: z.string().optional(), materials: stringList.optional(), apparentScale: z.string().optional(), shape: z.string().optional(), color: z.string().optional(), decorativeDetails: z.string().optional(), wear: z.string().optional(), damage: z.string().optional(), continuityLock: z.string().optional(), forbiddenVariations: stringList.optional(), firstAppearance: z.string().optional(), recurringAppearances: stringList.optional(),
+});
+
+export const HaqVerseCharacterAssetSchema = HaqVerseAssetBaseSchema.extend({
+  kind: z.literal("CHARACTER"), historicalProfile: CharacterHistoricalProfileSchema.optional(), cinematicProfile: CharacterCinematicProfileSchema.optional(), depiction: DepictionSchema.optional(), historical: HaqVerseHistoricalContextSchema.optional(), cinematic: HaqVerseCinematicContextSchema.optional(),
+});
+export const HaqVerseLocationAssetSchema = HaqVerseAssetBaseSchema.extend({
+  kind: z.literal("LOCATION"), historicalProfile: LocationHistoricalProfileSchema.optional(), cinematicEnvironment: LocationEnvironmentSchema.optional(), historical: HaqVerseHistoricalContextSchema.optional(), cinematic: HaqVerseCinematicContextSchema.optional(),
+});
+export const HaqVersePropAssetSchema = HaqVerseAssetBaseSchema.extend({
+  kind: z.literal("PROP"), historicalProfile: PropHistoricalProfileSchema.optional(), cinematicContinuity: PropCinematicContinuitySchema.optional(), narrativeMeaning: z.string().optional(), historical: HaqVerseHistoricalContextSchema.optional(), cinematic: HaqVerseCinematicContextSchema.optional(),
+});
+
+export const HaqVerseVisualAssetSchema = z.discriminatedUnion("kind", [
+  HaqVerseCharacterAssetSchema,
+  HaqVerseLocationAssetSchema,
+  HaqVersePropAssetSchema,
+]);
+
 export const HaqVerseWorldRuleSchema = z.object({
   id,
   projectId: id,
@@ -136,3 +172,7 @@ export type HaqVerseAssetBase = z.infer<typeof HaqVerseAssetBaseSchema>;
 export type HaqVerseWorldRule = z.infer<typeof HaqVerseWorldRuleSchema>;
 export type HaqVerseMotionRule = z.infer<typeof HaqVerseMotionRuleSchema>;
 export type HaqVerseShotSpec = z.infer<typeof HaqVerseShotSpecSchema>;
+export type HaqVerseCharacterAsset = z.infer<typeof HaqVerseCharacterAssetSchema>;
+export type HaqVerseLocationAsset = z.infer<typeof HaqVerseLocationAssetSchema>;
+export type HaqVersePropAsset = z.infer<typeof HaqVersePropAssetSchema>;
+export type HaqVerseVisualAsset = z.infer<typeof HaqVerseVisualAssetSchema>;

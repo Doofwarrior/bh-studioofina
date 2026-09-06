@@ -2,6 +2,7 @@ import { Navigate } from "react-router-dom";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { useProjectContext } from "@/app/providers/ProjectProvider";
+import { VisualAssetRegistry } from "./registry/VisualAssetRegistry";
 
 const plannedModules = [
   "Visual Continuity",
@@ -49,6 +50,8 @@ export function HaqVersePage() {
           QAL&apos;AT project. No production records or assets are connected yet.
         </p>
       </Card>
+
+      <VisualAssetRegistry projectId={activeProject.id} />
 
       <section aria-labelledby="haqverse-planned-modules">
         <div className="mb-3 flex items-center justify-between border-b border-qah-border pb-3">

@@ -71,6 +71,107 @@ export interface HaqVerseAssetBase {
   notes?: string;
 }
 
+export interface HaqVerseCharacterAsset extends HaqVerseAssetBase {
+  kind: "CHARACTER";
+  historicalProfile?: {
+    era?: string;
+    region?: string;
+    role?: string;
+    approximateAge?: string;
+  };
+  cinematicProfile?: {
+    build?: string;
+    heightImpression?: string;
+    silhouette?: string;
+    facialTreatment?: string;
+    hair?: string;
+    beard?: string;
+    headwear?: string;
+    innerGarment?: string;
+    outerGarment?: string;
+    lowerGarment?: string;
+    footwear?: string;
+    armor?: string;
+    weapons?: string;
+    accessories?: string;
+    materials?: string[];
+    primaryColors?: string[];
+    secondaryColors?: string[];
+    weathering?: string;
+    recurringMotif?: string;
+  };
+  depiction?: {
+    figureType?: string;
+    facePolicy?: string;
+    dignityRequirements?: string[];
+    modestyRequirements?: string[];
+    sensitivityNotes?: string[];
+  };
+  historical?: HaqVerseHistoricalContext;
+  cinematic?: HaqVerseCinematicContext;
+}
+
+export interface HaqVerseLocationAsset extends HaqVerseAssetBase {
+  kind: "LOCATION";
+  historicalProfile?: {
+    era?: string;
+    dateRange?: string;
+    region?: string;
+    modernEquivalent?: string;
+  };
+  cinematicEnvironment?: {
+    environmentType?: string;
+    terrain?: string;
+    groundTexture?: string;
+    architecture?: string;
+    constructionMaterials?: string[];
+    vegetation?: string;
+    climate?: string;
+    weatherDefaults?: string;
+    atmosphere?: string;
+    lightingRecipe?: string;
+    populationRules?: string[];
+    recurringProps?: string[];
+    primaryPalette?: string[];
+    secondaryPalette?: string[];
+    prohibitedElements?: string[];
+  };
+  historical?: HaqVerseHistoricalContext;
+  cinematic?: HaqVerseCinematicContext;
+}
+
+export interface HaqVersePropAsset extends HaqVerseAssetBase {
+  kind: "PROP";
+  historicalProfile?: {
+    era?: string;
+    region?: string;
+    historicalEvidence?: string[];
+  };
+  cinematicContinuity?: {
+    objectCategory?: string;
+    owner?: string;
+    materials?: string[];
+    apparentScale?: string;
+    shape?: string;
+    color?: string;
+    decorativeDetails?: string;
+    wear?: string;
+    damage?: string;
+    continuityLock?: string;
+    forbiddenVariations?: string[];
+    firstAppearance?: string;
+    recurringAppearances?: string[];
+  };
+  narrativeMeaning?: string;
+  historical?: HaqVerseHistoricalContext;
+  cinematic?: HaqVerseCinematicContext;
+}
+
+export type HaqVerseVisualAsset =
+  | HaqVerseCharacterAsset
+  | HaqVerseLocationAsset
+  | HaqVersePropAsset;
+
 export interface HaqVerseWorldRule {
   id: HaqVerseWorldRuleId;
   projectId: string;
