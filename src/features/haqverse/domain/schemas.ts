@@ -140,6 +140,7 @@ export const HaqVerseWorldRuleSchema = z.object({
 });
 
 export const HaqVerseMotionReferenceFrameSchema = z.enum(["WORLD", "CAMERA", "SUBJECT", "RELATIVE"]);
+export const HaqVerseCameraCategorySchema = z.enum(["STATIC", "PAN_TILT", "DOLLY_ZOOM", "TRACKING_CRANE", "HANDHELD_SPECIALTY", "AERIAL", "CUSTOM"]);
 export const HaqVerseMotionVectorSchema = z.object({
   value: z.string().min(1),
   referenceFrame: HaqVerseMotionReferenceFrameSchema,
@@ -175,6 +176,40 @@ export const HaqVerseMotionRuleSchema = z.object({
   notes: z.string().optional(),
 });
 
+export const HaqVerseCameraMovementSchema = z.object({
+  id,
+  projectId: id,
+  name: z.string().min(1),
+  continuityTag: ContinuityTagSchema,
+  status: HaqVerseAssetStatusSchema,
+  category: HaqVerseCameraCategorySchema,
+  movementType: z.string().min(1),
+  movementDirection: z.string().optional(),
+  movementSpeed: z.string().optional(),
+  movementIntensity: z.string().optional(),
+  stabilization: z.string().optional(),
+  cameraPath: z.string().optional(),
+  subjectRelationship: z.string().optional(),
+  shotSize: z.string().optional(),
+  cameraAngle: z.string().optional(),
+  subjectPosition: z.string().optional(),
+  compositionNotes: z.string().optional(),
+  lens: z.string().optional(),
+  focalLength: z.string().optional(),
+  focusBehavior: z.string().optional(),
+  depthOfField: z.string().optional(),
+  emotionalEffect: z.string().optional(),
+  narrativePurpose: z.string().optional(),
+  bestUsedFor: z.string().optional(),
+  avoidWhen: z.string().optional(),
+  referenceFrame: HaqVerseMotionReferenceFrameSchema.optional(),
+  compatibleGlobalVectors: stringList.optional(),
+  incompatibleMotionNotes: z.string().optional(),
+  notes: z.string().optional(),
+  createdAt: timestamp,
+  updatedAt: timestamp,
+});
+
 export const HaqVerseShotSpecSchema = z.object({
   id,
   projectId: id,
@@ -203,6 +238,7 @@ export type HaqVerseContentRecord = z.infer<typeof HaqVerseContentRecordSchema>;
 export type HaqVerseAssetBase = z.infer<typeof HaqVerseAssetBaseSchema>;
 export type HaqVerseWorldRule = z.infer<typeof HaqVerseWorldRuleSchema>;
 export type HaqVerseMotionRule = z.infer<typeof HaqVerseMotionRuleSchema>;
+export type HaqVerseCameraMovement = z.infer<typeof HaqVerseCameraMovementSchema>;
 export type HaqVerseShotSpec = z.infer<typeof HaqVerseShotSpecSchema>;
 export type HaqVerseCharacterAsset = z.infer<typeof HaqVerseCharacterAssetSchema>;
 export type HaqVerseLocationAsset = z.infer<typeof HaqVerseLocationAssetSchema>;

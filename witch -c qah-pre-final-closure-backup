@@ -1,0 +1,196 @@
+warning: in the working copy of 'src/features/haqverse/HaqVersePage.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/features/haqverse/domain/schemas.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/features/haqverse/domain/types.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/features/haqverse/rules/RuleRegistry.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/features/haqverse/rules/ruleState.ts', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/src/features/haqverse/HaqVersePage.tsx b/src/features/haqverse/HaqVersePage.tsx[m
+[1mindex 82353b2..d7e4eba 100644[m
+[1m--- a/src/features/haqverse/HaqVersePage.tsx[m
+[1m+++ b/src/features/haqverse/HaqVersePage.tsx[m
+[36m@@ -1,9 +1,13 @@[m
+[32m+[m[32mimport { useState } from "react";[m
+ import { Navigate } from "react-router-dom";[m
+ import { Badge } from "@/components/ui/Badge";[m
+ import { Card } from "@/components/ui/Card";[m
+ import { useProjectContext } from "@/app/providers/ProjectProvider";[m
+ import { VisualAssetRegistry } from "./registry/VisualAssetRegistry";[m
+ import { RuleRegistry } from "./rules/RuleRegistry";[m
+[32m+[m[32mimport { CameraLibrary } from "./camera/CameraLibrary";[m
+[32m+[m
+[32m+[m[32mtype Module = "ASSETS" | "WORLD_RULES" | "MOTION_RULES" | "CAMERA";[m
+ [m
+ const plannedModules = [[m
+   "Visual Continuity",[m
+[36m@@ -16,6 +20,7 @@[m [mconst plannedModules = [[m
+ [m
+ export function HaqVersePage() {[m
+   const { activeProject, isProjectReady } = useProjectContext();[m
+[32m+[m[32m  const [module, setModule] = useState<Module>("ASSETS");[m
+ [m
+   if (!isProjectReady) {[m
+     return null;[m
+[36m@@ -52,9 +57,16 @@[m [mexport function HaqVersePage() {[m
+         </p>[m
+       </Card>[m
+ [m
+[31m-      <VisualAssetRegistry projectId={activeProject.id} />[m
+[32m+[m[32m      <nav className="flex flex-wrap gap-1 border border-qah-border-strong bg-[#060806] p-2">[m
+[32m+[m[32m        {([["ASSETS", "VISUAL ASSETS"], ["WORLD_RULES", "WORLD RULES"], ["MOTION_RULES", "MOTION RULES"], ["CAMERA", "CAMERA LIBRARY"]] as Array<[Module, string]>).map(([id, label]) => ([m
+[32m+[m[32m          <button key={id} type="button" onClick={() => setModule(id)} className={`border px-3 py-2 text-xs uppercase tracking-[0.1em] ${module === id ? "border-qah-accent-dim bg-[rgba(180,201,107,0.08)] text-qah-text" : "border-transparent text-qah-text-muted hover:border-qah-border"}`}>{label}</button>[m
+[32m+[m[32m        ))}[m
+[32m+[m[32m      </nav>[m
+ [m
+[31m-      <RuleRegistry projectId={activeProject.id} />[m
+[32m+[m[32m      {module === "ASSETS" && <VisualAssetRegistry projectId={activeProject.id} />}[m
+[32m+[m[32m      {module === "WORLD_RULES" && <RuleRegistry projectId={activeProject.id} />}[m
+[32m+[m[32m      {module === "MOTION_RULES" && <RuleRegistry projectId={activeProject.id} initialKind="MOTION" />}[m
+[32m+[m[32m      {module === "CAMERA" && <CameraLibrary projectId={activeProject.id} />}[m
+ [m
+       <section aria-labelledby="haqverse-planned-modules">[m
+         <div className="mb-3 flex items-center justify-between border-b border-qah-border pb-3">[m
+[1mdiff --git a/src/features/haqverse/domain/schemas.ts b/src/features/haqverse/domain/schemas.ts[m
+[1mindex 838df40..aff8346 100644[m
+[1m--- a/src/features/haqverse/domain/schemas.ts[m
+[1m+++ b/src/features/haqverse/domain/schemas.ts[m
+[36m@@ -140,6 +140,7 @@[m [mexport const HaqVerseWorldRuleSchema = z.object({[m
+ });[m
+ [m
+ export const HaqVerseMotionReferenceFrameSchema = z.enum(["WORLD", "CAMERA", "SUBJECT", "RELATIVE"]);[m
+[32m+[m[32mexport const HaqVerseCameraCategorySchema = z.enum(["STATIC", "PAN_TILT", "DOLLY_ZOOM", "TRACKING_CRANE", "HANDHELD_SPECIALTY", "AERIAL", "CUSTOM"]);[m
+ export const HaqVerseMotionVectorSchema = z.object({[m
+   value: z.string().min(1),[m
+   referenceFrame: HaqVerseMotionReferenceFrameSchema,[m
+[36m@@ -175,6 +176,40 @@[m [mexport const HaqVerseMotionRuleSchema = z.object({[m
+   notes: z.string().optional(),[m
+ });[m
+ [m
+[32m+[m[32mexport const HaqVerseCameraMovementSchema = z.object({[m
+[32m+[m[32m  id,[m
+[32m+[m[32m  projectId: id,[m
+[32m+[m[32m  name: z.string().min(1),[m
+[32m+[m[32m  continuityTag: ContinuityTagSchema,[m
+[32m+[m[32m  status: HaqVerseAssetStatusSchema,[m
+[32m+[m[32m  category: HaqVerseCameraCategorySchema,[m
+[32m+[m[32m  movementType: z.string().min(1),[m
+[32m+[m[32m  movementDirection: z.string().optional(),[m
+[32m+[m[32m  movementSpeed: z.string().optional(),[m
+[32m+[m[32m  movementIntensity: z.string().optional(),[m
+[32m+[m[32m  stabilization: z.string().optional(),[m
+[32m+[m[32m  cameraPath: z.string().optional(),[m
+[32m+[m[32m  subjectRelationship: z.string().optional(),[m
+[32m+[m[32m  shotSize: z.string().optional(),[m
+[32m+[m[32m  cameraAngle: z.string().optional(),[m
+[32m+[m[32m  subjectPosition: z.string().optional(),[m
+[32m+[m[32m  compositionNotes: z.string().optional(),[m
+[32m+[m[32m  lens: z.string().optional(),[m
+[32m+[m[32m  focalLength: z.string().optional(),[m
+[32m+[m[32m  focusBehavior: z.string().optional(),[m
+[32m+[m[32m  depthOfField: z.string().optional(),[m
+[32m+[m[32m  emotionalEffect: z.string().optional(),[m
+[32m+[m[32m  narrativePurpose: z.string().optional(),[m
+[32m+[m[32m  bestUsedFor: z.string().optional(),[m
+[32m+[m[32m  avoidWhen: z.string().optional(),[m
+[32m+[m[32m  referenceFrame: HaqVerseMotionReferenceFrameSchema.optional(),[m
+[32m+[m[32m  compatibleGlobalVectors: stringList.optional(),[m
+[32m+[m[32m  incompatibleMotionNotes: z.string().optional(),[m
+[32m+[m[32m  notes: z.string().optional(),[m
+[32m+[m[32m  createdAt: timestamp,[m
+[32m+[m[32m  updatedAt: timestamp,[m
+[32m+[m[32m});[m
+[32m+[m
+ export const HaqVerseShotSpecSchema = z.object({[m
+   id,[m
+   projectId: id,[m
+[36m@@ -203,6 +238,7 @@[m [mexport type HaqVerseContentRecord = z.infer<typeof HaqVerseContentRecordSchema>;[m
+ export type HaqVerseAssetBase = z.infer<typeof HaqVerseAssetBaseSchema>;[m
+ export type HaqVerseWorldRule = z.infer<typeof HaqVerseWorldRuleSchema>;[m
+ export type HaqVerseMotionRule = z.infer<typeof HaqVerseMotionRuleSchema>;[m
+[32m+[m[32mexport type HaqVerseCameraMovement = z.infer<typeof HaqVerseCameraMovementSchema>;[m
+ export type HaqVerseShotSpec = z.infer<typeof HaqVerseShotSpecSchema>;[m
+ export type HaqVerseCharacterAsset = z.infer<typeof HaqVerseCharacterAssetSchema>;[m
+ export type HaqVerseLocationAsset = z.infer<typeof HaqVerseLocationAssetSchema>;[m
+[1mdiff --git a/src/features/haqverse/domain/types.ts b/src/features/haqverse/domain/types.ts[m
+[1mindex 7e9d4b2..9471733 100644[m
+[1m--- a/src/features/haqverse/domain/types.ts[m
+[1m+++ b/src/features/haqverse/domain/types.ts[m
+[36m@@ -205,6 +205,42 @@[m [mexport interface HaqVerseWorldRule {[m
+ [m
+ export type HaqVerseMotionReferenceFrame = "WORLD" | "CAMERA" | "SUBJECT" | "RELATIVE";[m
+ [m
+[32m+[m[32mexport type HaqVerseCameraMovementId = string;[m
+[32m+[m[32mexport type HaqVerseCameraCategory = "STATIC" | "PAN_TILT" | "DOLLY_ZOOM" | "TRACKING_CRANE" | "HANDHELD_SPECIALTY" | "AERIAL" | "CUSTOM";[m
+[32m+[m[32mexport type HaqVerseCameraMovement = {[m
+[32m+[m[32m  id: HaqVerseCameraMovementId;[m
+[32m+[m[32m  projectId: string;[m
+[32m+[m[32m  name: string;[m
+[32m+[m[32m  continuityTag: ContinuityTag;[m
+[32m+[m[32m  status: HaqVerseAssetStatus;[m
+[32m+[m[32m  category: HaqVerseCameraCategory;[m
+[32m+[m[32m  movementType: string;[m
+[32m+[m[32m  movementDirection?: string;[m
+[32m+[m[32m  movementSpeed?: string;[m
+[32m+[m[32m  movementIntensity?: string;[m
+[32m+[m[32m  stabilization?: string;[m
+[32m+[m[32m  cameraPath?: string;[m
+[32m+[m[32m  subjectRelationship?: string;[m
+[32m+[m[32m  shotSize?: string;[m
+[32m+[m[32m  cameraAngle?: string;[m
+[32m+[m[32m  subjectPosition?: string;[m
+[32m+[m[32m  compositionNotes?: string;[m
+[32m+[m[32m  lens?: string;[m
+[32m+[m[32m  focalLength?: string;[m
+[32m+[m[32m  focusBehavior?: string;[m
+[32m+[m[32m  depthOfField?: string;[m
+[32m+[m[32m  emotionalEffect?: string;[m
+[32m+[m[32m  narrativePurpose?: string;[m
+[32m+[m[32m  bestUsedFor?: string;[m
+[32m+[m[32m  avoidWhen?: string;[m
+[32m+[m[32m  referenceFrame?: HaqVerseMotionReferenceFrame;[m
+[32m+[m[32m  compatibleGlobalVectors?: string[];[m
+[32m+[m[32m  incompatibleMotionNotes?: string;[m
+[32m+[m[32m  notes?: string;[m
+[32m+[m[32m  createdAt: string;[m
+[32m+[m[32m  updatedAt: string;[m
+[32m+[m[32m};[m
+[32m+[m
+ export interface HaqVerseMotionVector {[m
+   value: string;[m
+   referenceFrame: HaqVerseMotionReferenceFrame;[m
+[1mdiff --git a/src/features/haqverse/rules/RuleRegistry.tsx b/src/features/haqverse/rules/RuleRegistry.tsx[m
+[1mindex 6cd404c..7a59199 100644[m
+[1m--- a/src/features/haqverse/rules/RuleRegistry.tsx[m
+[1m+++ b/src/features/haqverse/rules/RuleRegistry.tsx[m
+[36m@@ -18,8 +18,8 @@[m [mconst isWorld = (r: Rule): r is HaqVerseWorldRule => "visualPhilosophy" in r ||[m
+ const blank = (): Form => ({ status: "DRAFT", globalFrame: "WORLD", cameraFrame: "WORLD", environmentFrame: "CAMERA" });[m
+ const input = "mt-1 w-full border border-qah-border-strong bg-[#080b08] px-3 py-2 text-sm text-qah-text";[m
+ [m
+[31m-export function RuleRegistry({ projectId }: { projectId: string }) {[m
+[31m-  const [kind, setKind] = useState<Kind>("WORLD");[m
+[32m+[m[32mexport function RuleRegistry({ projectId, initialKind = "WORLD" }: { projectId: string; initialKind?: Kind }) {[m
+[32m+[m[32m  const [kind, setKind] = useState<Kind>(initialKind);[m
+   const [world, setWorld] = useState(() => loadWorldRules(projectId));[m
+   const [motion, setMotion] = useState(() => loadMotionRules(projectId));[m
+   const [editing, setEditing] = useState<Rule | null>(null);[m
+[1mdiff --git a/src/features/haqverse/rules/ruleState.ts b/src/features/haqverse/rules/ruleState.ts[m
+[1mindex 4de48d4..eefc6f2 100644[m
+[1m--- a/src/features/haqverse/rules/ruleState.ts[m
+[1m+++ b/src/features/haqverse/rules/ruleState.ts[m
+[36m@@ -1,5 +1,6 @@[m
+ import { HaqVerseMotionRuleSchema, HaqVerseWorldRuleSchema } from "../domain/schemas";[m
+[31m-import type { HaqVerseMotionRule, HaqVerseVisualAsset, HaqVerseWorldRule } from "../domain/types";[m
+[32m+[m[32mimport type { HaqVerseCameraMovement, HaqVerseMotionRule, HaqVerseVisualAsset, HaqVerseWorldRule } from "../domain/types";[m
+[32m+[m[32mimport { loadCameraMovements } from "../camera/cameraState";[m
+ import { loadVisualAssets } from "../registry/registryState";[m
+ [m
+ function keyFor(projectId: string, type: "world-rules" | "motion-rules") {[m
+[36m@@ -20,8 +21,8 @@[m [mexport const loadMotionRules = (projectId: string) => load<HaqVerseMotionRule>(p[m
+ export const saveWorldRules = (projectId: string, rules: HaqVerseWorldRule[]) => localStorage.setItem(keyFor(projectId, "world-rules"), JSON.stringify(rules));[m
+ export const saveMotionRules = (projectId: string, rules: HaqVerseMotionRule[]) => localStorage.setItem(keyFor(projectId, "motion-rules"), JSON.stringify(rules));[m
+ [m
+[31m-type TaggedRecord = HaqVerseVisualAsset | HaqVerseWorldRule | HaqVerseMotionRule;[m
+[32m+[m[32mtype TaggedRecord = HaqVerseVisualAsset | HaqVerseWorldRule | HaqVerseMotionRule | HaqVerseCameraMovement;[m
+ export function findProjectTagConflict(projectId: string, tag: string, ignoredId?: string): TaggedRecord | undefined {[m
+[31m-  return [...loadVisualAssets(projectId), ...loadWorldRules(projectId), ...loadMotionRules(projectId)][m
+[32m+[m[32m  return [...loadVisualAssets(projectId), ...loadWorldRules(projectId), ...loadMotionRules(projectId), ...loadCameraMovements(projectId)][m
+     .find((record) => record.continuityTag === tag && record.id !== ignoredId);[m
+ }[m

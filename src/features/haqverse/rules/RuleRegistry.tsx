@@ -18,8 +18,8 @@ const isWorld = (r: Rule): r is HaqVerseWorldRule => "visualPhilosophy" in r || 
 const blank = (): Form => ({ status: "DRAFT", globalFrame: "WORLD", cameraFrame: "WORLD", environmentFrame: "CAMERA" });
 const input = "mt-1 w-full border border-qah-border-strong bg-[#080b08] px-3 py-2 text-sm text-qah-text";
 
-export function RuleRegistry({ projectId }: { projectId: string }) {
-  const [kind, setKind] = useState<Kind>("WORLD");
+export function RuleRegistry({ projectId, initialKind = "WORLD" }: { projectId: string; initialKind?: Kind }) {
+  const [kind, setKind] = useState<Kind>(initialKind);
   const [world, setWorld] = useState(() => loadWorldRules(projectId));
   const [motion, setMotion] = useState(() => loadMotionRules(projectId));
   const [editing, setEditing] = useState<Rule | null>(null);
