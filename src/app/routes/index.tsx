@@ -15,6 +15,7 @@ import { ContentVaultPage } from "@/features/content/ContentVaultPage";
 import { PlannerPage } from "@/features/planner/PlannerPage";
 import { QuickCapturePage } from "@/features/capture/QuickCapturePage";
 import { GlobalSearchPage } from "@/features/search/GlobalSearchPage";
+import { HaqVersePage } from "@/features/haqverse/HaqVersePage";
 import { useProjectContext } from "@/app/providers/ProjectProvider";
 
 function DashboardRoute() {
@@ -47,6 +48,10 @@ export function createAppRouter() {
             {
               index: true,
               element: <ProjectPage />,
+            },
+            {
+              path: "haqverse",
+              element: <HaqVersePage />,
             },
           ],
         },

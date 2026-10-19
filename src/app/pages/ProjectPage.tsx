@@ -5,8 +5,12 @@ import { deleteProject, writeProjectManifest } from "@/lib/storage";
 import type { ProjectManifest } from "@/types/project";
 
 export function ProjectPage() {
-  const { activeProject, clearProject, loadProject } = useProjectContext();
+  const { activeProject, clearProject, loadProject, isProjectReady } = useProjectContext();
   const navigate = useNavigate();
+
+  if (!isProjectReady) {
+    return null;
+  }
 
   if (!activeProject) {
     return <Navigate to="/" replace />;

@@ -12,7 +12,12 @@ import { WorkspaceProvider } from "@/app/providers/WorkspaceProvider";
 import { ProjectProvider } from "@/app/providers/ProjectProvider";
 import { createAppRouter } from "@/app/routes";
 import Bootloader from "@/components/Bootloader/Bootloader";
-import { initialize, isWorkspaceConnected, selectWorkspaceDirectory } from "@/lib/storage";
+import {
+  initialize,
+  isWorkspaceConnected,
+  selectWorkspaceDirectory,
+  getWorkspaceAccessIssue,
+} from "@/lib/storage";
 import "@/styles/index.css";
 
 // Router is created once at module level - never recreated on re-render
@@ -20,6 +25,7 @@ const router = createAppRouter();
 
 function App() {
   const [workspaceReady, setWorkspaceReady] = useState(false);
+  const [localMode, setLocalMode] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
@@ -50,8 +56,11 @@ function App() {
     <Bootloader>
       {isChecking ? (
         <BootSequence />
-      ) : !workspaceReady ? (
-        <WorkspaceSetup onReady={() => setWorkspaceReady(true)} />
+      ) : !workspaceReady && !localMode ? (
+        <WorkspaceSetup
+          onReady={() => setWorkspaceReady(true)}
+          onContinueLocal={() => setLocalMode(true)}
+        />
       ) : (
         <StrictMode>
           <WorkspaceProvider>
@@ -259,7 +268,13 @@ function BootSequence() {
 // Workspace Setup Overlay
 // ------------------------------------------------------------
 
-function WorkspaceSetup({ onReady }: { onReady: () => void }) {
+function WorkspaceSetup({
+  onReady,
+  onContinueLocal,
+}: {
+  onReady: () => void;
+  onContinueLocal: () => void;
+}) {
   const [isRequesting, setIsRequesting] = useState(false);
   const [error, setError] = useState("");
 
@@ -271,8 +286,15 @@ function WorkspaceSetup({ onReady }: { onReady: () => void }) {
       if (granted) {
         onReady();
       } else {
+        const issue = getWorkspaceAccessIssue();
         setError(
-          "Folder access was denied or is not supported in this browser."
+          issue === "unsupported"
+            ? "Filesystem workspace access is not supported here. You can continue in local mode."
+            : issue === "restoration-failed"
+              ? "The saved workspace needs authorization again. Select the folder or continue in local mode."
+              : issue === "storage-error"
+                ? "Workspace state could not be restored. Select a folder again or continue in local mode."
+                : "Folder access was cancelled or denied. Select a folder again or continue in local mode."
         );
       }
     } catch (err) {
@@ -311,6 +333,14 @@ function WorkspaceSetup({ onReady }: { onReady: () => void }) {
             className="qah-btn-primary w-full disabled:opacity-50"
           >
             {isRequesting ? "REQUESTING..." : "SELECT WORKSPACE FOLDER"}
+          </button>
+
+          <button
+            type="button"
+            onClick={onContinueLocal}
+            className="qah-btn-secondary w-full"
+          >
+            CONTINUE IN LOCAL MODE
           </button>
 
           {error && (

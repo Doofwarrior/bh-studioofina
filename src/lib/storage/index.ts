@@ -66,15 +66,30 @@ declare global {
 
 let workspaceHandle: FileSystemDirectoryHandle | null = null;
 
+export type WorkspaceAccessIssue =
+  | "unsupported"
+  | "cancelled"
+  | "denied"
+  | "restoration-failed"
+  | "storage-error"
+  | null;
+
+let workspaceAccessIssue: WorkspaceAccessIssue = null;
+
 /**
  * Initialize the storage layer without invoking a user-gesture-only picker.
  * Restores a previously persisted workspace handle when permission is already granted.
  */
 export async function initialize(): Promise<void> {
+  workspaceAccessIssue = null;
   const savedHandle = await restoreDirectoryHandle();
   if (savedHandle) {
     workspaceHandle = savedHandle;
   }
+}
+
+export function getWorkspaceAccessIssue(): WorkspaceAccessIssue {
+  return workspaceAccessIssue;
 }
 
 export async function requestWorkspaceAccess(): Promise<boolean> {
@@ -88,6 +103,7 @@ export async function requestWorkspaceAccess(): Promise<boolean> {
 
     return await selectWorkspaceDirectory();
   } catch {
+    workspaceAccessIssue = "storage-error";
     return false;
   }
 }
@@ -103,6 +119,11 @@ export function getWorkspaceName(): string | null {
 }
 
 export async function selectWorkspaceDirectory(): Promise<boolean> {
+  if (typeof window.showDirectoryPicker !== "function") {
+    workspaceAccessIssue = "unsupported";
+    return false;
+  }
+
   try {
     const handle = await window.showDirectoryPicker({
       mode: "readwrite",
@@ -110,9 +131,14 @@ export async function selectWorkspaceDirectory(): Promise<boolean> {
     });
 
     workspaceHandle = handle;
+    workspaceAccessIssue = null;
     await saveDirectoryHandle(handle);
     return true;
-  } catch {
+  } catch (err) {
+    workspaceAccessIssue =
+      err instanceof DOMException && err.name === "AbortError"
+        ? "cancelled"
+        : "denied";
     return false;
   }
 }
@@ -152,9 +178,11 @@ async function restoreDirectoryHandle(): Promise<FileSystemDirectoryHandle | nul
       if (permission === "granted") {
         return handle;
       }
+      workspaceAccessIssue = "restoration-failed";
     }
     return null;
   } catch {
+    workspaceAccessIssue = "storage-error";
     return null;
   }
 }

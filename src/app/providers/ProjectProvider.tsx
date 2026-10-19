@@ -13,6 +13,7 @@ interface ProjectContextValue {
   loadProject: (manifest: ProjectManifest) => void;
   clearProject: () => void;
   isProjectOpen: boolean;
+  isProjectReady: boolean;
 }
 
 const ProjectContext = createContext<ProjectContextValue | null>(null);
