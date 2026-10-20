@@ -205,6 +205,42 @@ export interface HaqVerseWorldRule {
 
 export type HaqVerseMotionReferenceFrame = "WORLD" | "CAMERA" | "SUBJECT" | "RELATIVE";
 
+export type HaqVerseCameraMovementId = string;
+export type HaqVerseCameraCategory = "STATIC" | "PAN_TILT" | "DOLLY_ZOOM" | "TRACKING_CRANE" | "HANDHELD_SPECIALTY" | "AERIAL" | "CUSTOM";
+export type HaqVerseCameraMovement = {
+  id: HaqVerseCameraMovementId;
+  projectId: string;
+  name: string;
+  continuityTag: ContinuityTag;
+  status: HaqVerseAssetStatus;
+  category: HaqVerseCameraCategory;
+  movementType: string;
+  movementDirection?: string;
+  movementSpeed?: string;
+  movementIntensity?: string;
+  stabilization?: string;
+  cameraPath?: string;
+  subjectRelationship?: string;
+  shotSize?: string;
+  cameraAngle?: string;
+  subjectPosition?: string;
+  compositionNotes?: string;
+  lens?: string;
+  focalLength?: string;
+  focusBehavior?: string;
+  depthOfField?: string;
+  emotionalEffect?: string;
+  narrativePurpose?: string;
+  bestUsedFor?: string;
+  avoidWhen?: string;
+  referenceFrame?: HaqVerseMotionReferenceFrame;
+  compatibleGlobalVectors?: string[];
+  incompatibleMotionNotes?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export interface HaqVerseMotionVector {
   value: string;
   referenceFrame: HaqVerseMotionReferenceFrame;

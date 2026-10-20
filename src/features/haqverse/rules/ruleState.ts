@@ -1,5 +1,6 @@
 import { HaqVerseMotionRuleSchema, HaqVerseWorldRuleSchema } from "../domain/schemas";
-import type { HaqVerseMotionRule, HaqVerseVisualAsset, HaqVerseWorldRule } from "../domain/types";
+import type { HaqVerseCameraMovement, HaqVerseMotionRule, HaqVerseVisualAsset, HaqVerseWorldRule } from "../domain/types";
+import { loadCameraMovements } from "../camera/cameraState";
 import { loadVisualAssets } from "../registry/registryState";
 
 function keyFor(projectId: string, type: "world-rules" | "motion-rules") {
@@ -20,8 +21,8 @@ export const loadMotionRules = (projectId: string) => load<HaqVerseMotionRule>(p
 export const saveWorldRules = (projectId: string, rules: HaqVerseWorldRule[]) => localStorage.setItem(keyFor(projectId, "world-rules"), JSON.stringify(rules));
 export const saveMotionRules = (projectId: string, rules: HaqVerseMotionRule[]) => localStorage.setItem(keyFor(projectId, "motion-rules"), JSON.stringify(rules));
 
-type TaggedRecord = HaqVerseVisualAsset | HaqVerseWorldRule | HaqVerseMotionRule;
+type TaggedRecord = HaqVerseVisualAsset | HaqVerseWorldRule | HaqVerseMotionRule | HaqVerseCameraMovement;
 export function findProjectTagConflict(projectId: string, tag: string, ignoredId?: string): TaggedRecord | undefined {
-  return [...loadVisualAssets(projectId), ...loadWorldRules(projectId), ...loadMotionRules(projectId)]
+  return [...loadVisualAssets(projectId), ...loadWorldRules(projectId), ...loadMotionRules(projectId), ...loadCameraMovements(projectId)]
     .find((record) => record.continuityTag === tag && record.id !== ignoredId);
 }

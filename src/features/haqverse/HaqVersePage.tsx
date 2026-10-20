@@ -1,9 +1,13 @@
+import { useState } from "react";
 import { Navigate } from "react-router-dom";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { useProjectContext } from "@/app/providers/ProjectProvider";
 import { VisualAssetRegistry } from "./registry/VisualAssetRegistry";
 import { RuleRegistry } from "./rules/RuleRegistry";
+import { CameraLibrary } from "./camera/CameraLibrary";
+
+type Module = "ASSETS" | "WORLD_RULES" | "MOTION_RULES" | "CAMERA";
 
 const plannedModules = [
   "Visual Continuity",
@@ -16,6 +20,7 @@ const plannedModules = [
 
 export function HaqVersePage() {
   const { activeProject, isProjectReady } = useProjectContext();
+  const [module, setModule] = useState<Module>("ASSETS");
 
   if (!isProjectReady) {
     return null;
@@ -52,9 +57,16 @@ export function HaqVersePage() {
         </p>
       </Card>
 
-      <VisualAssetRegistry projectId={activeProject.id} />
+      <nav className="flex flex-wrap gap-1 border border-qah-border-strong bg-[#060806] p-2">
+        {([["ASSETS", "VISUAL ASSETS"], ["WORLD_RULES", "WORLD RULES"], ["MOTION_RULES", "MOTION RULES"], ["CAMERA", "CAMERA LIBRARY"]] as Array<[Module, string]>).map(([id, label]) => (
+          <button key={id} type="button" onClick={() => setModule(id)} className={`border px-3 py-2 text-xs uppercase tracking-[0.1em] ${module === id ? "border-qah-accent-dim bg-[rgba(180,201,107,0.08)] text-qah-text" : "border-transparent text-qah-text-muted hover:border-qah-border"}`}>{label}</button>
+        ))}
+      </nav>
 
-      <RuleRegistry projectId={activeProject.id} />
+      {module === "ASSETS" && <VisualAssetRegistry projectId={activeProject.id} />}
+      {module === "WORLD_RULES" && <RuleRegistry projectId={activeProject.id} />}
+      {module === "MOTION_RULES" && <RuleRegistry projectId={activeProject.id} initialKind="MOTION" />}
+      {module === "CAMERA" && <CameraLibrary projectId={activeProject.id} />}
 
       <section aria-labelledby="haqverse-planned-modules">
         <div className="mb-3 flex items-center justify-between border-b border-qah-border pb-3">

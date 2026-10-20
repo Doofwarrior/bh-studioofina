@@ -14,14 +14,15 @@ type Form = Record<string, string>;
 const get = (f: Form, n: string) => f[n] ?? "";
 const lines = (v: string) => v.split("\n").map((x) => x.trim()).filter(Boolean);
 const join = (v?: string[]) => v?.join("\n") ?? "";
-const isWorld = (r: Rule): r is HaqVerseWorldRule => "visualPhilosophy" in r || "productionContext" in r;
 const blank = (): Form => ({ status: "DRAFT", globalFrame: "WORLD", cameraFrame: "WORLD", environmentFrame: "CAMERA" });
 const input = "mt-1 w-full border border-qah-border-strong bg-[#080b08] px-3 py-2 text-sm text-qah-text";
 
-export function RuleRegistry({ projectId }: { projectId: string }) {
-  const [kind, setKind] = useState<Kind>("WORLD");
+export function RuleRegistry({ projectId, initialKind = "WORLD" }: { projectId: string; initialKind?: Kind }) {
+  const [kind, setKind] = useState<Kind>(initialKind);
   const [world, setWorld] = useState(() => loadWorldRules(projectId));
   const [motion, setMotion] = useState(() => loadMotionRules(projectId));
+  // Collection membership survives JSON serialization; optional fields do not.
+  const isWorld = (r: Rule): r is HaqVerseWorldRule => world.some((rule) => rule.id === r.id);
   const [editing, setEditing] = useState<Rule | null>(null);
   const [form, setForm] = useState<Form>(blank);
   const [query, setQuery] = useState(""); const [error, setError] = useState("");

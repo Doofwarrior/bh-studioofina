@@ -62,7 +62,7 @@ export function updatePlannerItem(id: string, patch: Partial<Pick<PlannerItem, "
     ...patch,
     title: patch.title !== undefined ? patch.title.trim() : items[index].title,
     notes: patch.notes !== undefined ? patch.notes.trim() : items[index].notes,
-    dueDate: patch.dueDate || undefined,
+    dueDate: patch.dueDate !== undefined ? patch.dueDate || undefined : items[index].dueDate,
     updatedAt: new Date().toISOString(),
   };
   items[index] = next;
