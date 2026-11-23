@@ -156,7 +156,7 @@ export function PromptLibraryPage() {
                     ))}
                   </div>
                 </div>
-                <span className="text-xs text-[var(--studio-text-subtle)]">
+                <span className="data-meta">
                   v{prompt.version}
                 </span>
               </div>

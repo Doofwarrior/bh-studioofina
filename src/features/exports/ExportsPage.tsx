@@ -152,7 +152,7 @@ export function ExportsPage() {
                     <h3 className="font-medium text-[var(--studio-text)]">
                       {exp.name}
                     </h3>
-                    <p className="text-xs text-[var(--studio-text-subtle)]">
+                    <p className="data-meta">
                       {exp.manifest.title}
                     </p>
                   </div>

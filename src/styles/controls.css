@@ -1,0 +1,209 @@
+/* Interactive surfaces. The corner radius is a fallback for engines without bevels. */
+.qah-shell :is(.qah-control, .qah-navigation-rail__link, .qah-system-bar__command, button[aria-pressed]),
+.qah-shell__main :is(input:not([type]), input[type="text"], input[type="search"], textarea, select) {
+  border-radius: 1px 7px 1px 5px;
+  corner-shape: bevel;
+}
+
+.qah-control {
+  border: 1px solid var(--qah-border-strong);
+  background-color: var(--qah-surface);
+  color: var(--qah-text);
+}
+.qah-control--primary {
+  background-color: var(--qah-accent);
+  border-color: var(--qah-accent-bright);
+  color: var(--qah-bg);
+}
+.qah-control--secondary:enabled {
+  background-image: repeating-linear-gradient(90deg, var(--qah-accent-dim) 0 3px, transparent 3px 5px);
+  background-position: right 6px bottom 3px;
+  background-size: 13px 2px;
+  background-repeat: no-repeat;
+}
+.qah-control--ghost {
+  border-color: transparent;
+  background-color: transparent;
+  color: var(--qah-text-muted);
+}
+.qah-control--danger {
+  border-color: var(--qah-identity);
+  border-inline-start-width: 3px;
+  color: var(--qah-identity);
+}
+.qah-control:enabled:hover {
+  background-color: var(--qah-surface-raised);
+  border-color: var(--qah-accent);
+  color: var(--qah-text);
+}
+.qah-control--primary:enabled:hover {
+  background-color: var(--qah-accent-bright);
+  color: var(--qah-bg);
+}
+.qah-control--danger:enabled:hover {
+  background-color: var(--qah-identity);
+  color: var(--qah-bg);
+  border-color: var(--qah-identity);
+}
+.qah-control:enabled:active {
+  box-shadow: inset 0 0 0 2px var(--qah-bg);
+}
+.qah-shell .qah-control:disabled {
+  color: var(--qah-text-dim);
+  background-color: var(--qah-bg);
+  border-color: var(--qah-border);
+  border-style: dashed;
+}
+
+.qah-shell .qah-navigation-rail__link {
+  border-color: var(--qah-border-mute);
+}
+.qah-shell a.qah-navigation-rail__link:hover {
+  background-color: var(--qah-surface-raised);
+  border-color: var(--qah-border-pale);
+}
+.qah-shell .qah-navigation-rail__link[aria-disabled] {
+  opacity: 1;
+  color: var(--qah-text-dim);
+  border-style: dashed;
+  background: transparent;
+}
+.qah-shell .qah-navigation-rail__link[aria-current="page"],
+.qah-shell :is(button[aria-pressed="true"], .qah-view-switch button[aria-expanded="true"]) {
+  background: var(--qah-surface-raised);
+  border: 1px solid var(--qah-accent);
+  box-shadow: inset 3px 0 var(--qah-accent);
+  color: var(--qah-text);
+}
+.qah-navigation-rail__link[aria-current] svg { color: var(--qah-accent-bright); }
+.qah-shell .qah-navigation-rail__link[aria-current="page"] {
+  background-image:
+    radial-gradient(circle, var(--qah-accent) 1.25px, transparent 1.75px),
+    linear-gradient(var(--qah-accent-dim), var(--qah-accent-dim));
+  background-position: right 5px bottom 3px, right 7px bottom 5px;
+  background-size: 5px 5px, 12px 1px;
+  background-repeat: no-repeat;
+}
+
+.qah-view-switch {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  max-width: 100%;
+}
+.qah-shell .qah-view-switch button { border-radius: 1px; }
+.qah-shell .qah-view-switch button:first-child { border-bottom-left-radius: 6px; }
+.qah-shell .qah-view-switch button:last-child { border-top-right-radius: 6px; }
+.qah-shell :is(button[aria-pressed="true"], .qah-view-switch button[aria-expanded="true"]) {
+  box-shadow: inset 0 -2px var(--qah-accent);
+}
+
+.qah-shell .qah-system-bar__command {
+  align-self: center;
+  margin-inline: .75rem;
+  min-height: 2rem;
+  padding-inline: .75rem;
+  border: 1px solid var(--qah-border-strong);
+  background: var(--qah-bg);
+  background-image: linear-gradient(90deg, var(--qah-border-pale) 0 13px, var(--qah-identity) 13px);
+  background-position: left 9px bottom 1px;
+  background-size: 16px 1px;
+  background-repeat: no-repeat;
+}
+.qah-system-bar__command input { min-height: 1.75rem; }
+.qah-shell__main :is(input:not([type]), input[type="text"], input[type="search"], textarea, select) {
+  border: 1px solid var(--qah-border-pale);
+  background-color: var(--qah-bg);
+  color: var(--qah-text);
+  /* A short terminal line at the foot leaves labels and native affordances clear. */
+  background-image: linear-gradient(var(--qah-border-pale), var(--qah-border-pale));
+  background-size: 12px 1px;
+  background-position: left 7px bottom 2px;
+  background-repeat: no-repeat;
+}
+.qah-shell :is(input, textarea)::placeholder {
+  color: var(--qah-text-subtle);
+  opacity: 1;
+}
+.qah-shell :is(input, textarea, select)[aria-invalid="true"],
+.qah-shell :is(input, textarea, select):user-invalid {
+  border: 2px dashed var(--qah-identity);
+}
+.qah-shell :is(button, a, input, textarea, select):focus-visible,
+.qah-shell .qah-system-bar__command:focus-within {
+  outline: 2px solid var(--qah-accent-bright);
+  outline-offset: 2px;
+}
+.qah-shell .qah-system-bar__command input:focus-visible { outline: none; }
+
+
+@media (min-width: 701px) {
+  .qah-navigation-rail__link[aria-disabled] {
+    display: grid;
+    grid-template-columns: 1rem 1fr;
+    gap: 0 .55rem;
+    padding-block: .35rem;
+  }
+  .qah-navigation-rail__link[aria-disabled] svg { grid-row: span 2; }
+  .qah-navigation-rail__link[aria-disabled] span:last-child {
+    grid-column: 2;
+    margin-inline-start: 0;
+  }
+}
+
+/* Family 6 — feedback stays within the control receiving input. */
+@media (prefers-reduced-motion: no-preference) {
+  .qah-shell .qah-control:enabled,
+  .qah-shell a.qah-navigation-rail__link,
+  .qah-shell button[aria-pressed]:enabled,
+  .qah-shell__main select:enabled {
+    transition: background-color 140ms ease-out, border-color 140ms ease-out,
+      color 140ms ease-out, box-shadow 100ms ease-out;
+  }
+
+  .qah-shell .qah-control:enabled:active {
+    transition-duration: 45ms;
+  }
+
+  .qah-shell__main :is(input:not([type]), input[type="text"], input[type="search"], textarea):enabled,
+  .qah-shell .qah-system-bar__command {
+    transition: border-color 140ms ease-out;
+  }
+
+  .qah-shell__main :is(input, textarea, select):is([aria-invalid="true"], :user-invalid) {
+    transition: none;
+  }
+
+  .qah-shell__main summary::marker {
+    transition: color 120ms ease-out;
+  }
+
+  .qah-panel-enter {
+    animation: qah-panel-arrive 160ms ease-out;
+  }
+}
+
+@media (hover: hover) {
+  .qah-shell .qah-control:enabled:hover:where(:not(:active, [aria-pressed="true"], [aria-expanded="true"])) {
+    box-shadow: inset 0 -2px 0 var(--qah-accent);
+  }
+
+  .qah-shell__main select:enabled:hover:where(:not(:focus, :user-invalid, [aria-invalid="true"])) {
+    border-color: var(--qah-accent);
+  }
+}
+
+@keyframes qah-panel-arrive {
+  from { opacity: .82; }
+  to { opacity: 1; }
+}
+
+.qah-shell__main details[open] > summary::marker,
+.qah-shell__main summary:focus-visible::marker {
+  color: var(--qah-accent);
+}
+
+.qah-shell__main :is(input:not([type]), input[type="text"], input[type="search"], textarea, select):enabled:focus:where(:not([aria-invalid="true"], :user-invalid)),
+.qah-shell .qah-system-bar__command:focus-within {
+  border-color: var(--qah-accent);
+}

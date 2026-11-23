@@ -1,3 +1,5 @@
+import { Badge } from "@/components/ui/Badge";
+import {BackupSettings} from "./BackupSettings";
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -9,7 +11,7 @@ import {
   DEFAULT_OLLAMA_BASE_URL,
   DEFAULT_OLLAMA_MODEL,
 } from "@/lib/constants";
-import { FolderOpen, Server, RefreshCw, CheckCircle, XCircle } from "lucide-react";
+import { FolderOpen, Server, RefreshCw } from "lucide-react";
 
 export function SettingsPage() {
   const { workspacePath, isConfigured, connectWorkspace } = useWorkspace();
@@ -85,63 +87,31 @@ export function SettingsPage() {
             {isConfigured ? "Reconnect Workspace Folder" : "Connect Workspace Folder"}
           </Button>
           {wsStatus === "connecting" && (
-            <p className="text-sm text-[var(--studio-text-muted)]">
-              Requesting folder access…
-            </p>
+            <p role="status"><Badge variant="processing">Requesting folder access…</Badge></p>
           )}
           {wsStatus === "cancelled" && (
-            <p className="text-sm text-[var(--studio-text-subtle)]">
-              Workspace selection was cancelled or denied.
-            </p>
+            <p role="status"><Badge variant="warning">Workspace selection was cancelled or denied.</Badge></p>
           )}
           {wsStatus === "error" && (
-            <p className="text-sm text-[var(--studio-danger)]">{wsError}</p>
+            <p role="alert"><Badge variant="danger">{wsError}</Badge></p>
           )}
         </div>
       </Card>
 
+      <BackupSettings/>
       <Card title="Ollama Configuration" subtitle="Local LLM settings">
         <div className="space-y-4">
           <div className="flex items-center gap-3 rounded-md border bg-[var(--studio-surface-elevated)] p-3">
-            {connectionStatus === "idle" && (
-              <>
-                <Server size={18} className="text-[var(--studio-text-subtle)]" />
-                <span className="text-sm text-[var(--studio-text-muted)]">
-                  Not checked yet
-                </span>
-              </>
-            )}
-            {connectionStatus === "checking" && (
-              <>
-                <RefreshCw
-                  size={18}
-                  className="animate-spin text-[var(--studio-accent)]"
-                />
-                <span className="text-sm text-[var(--studio-text-muted)]">
-                  Checking connection...
-                </span>
-              </>
-            )}
-            {connectionStatus === "connected" && (
-              <>
-                <CheckCircle size={18} className="text-green-400" />
-                <span className="text-sm text-green-400">
-                  Connected — {availableModels.length} model
-                  {availableModels.length !== 1 ? "s" : ""} available
-                </span>
-              </>
-            )}
-            {connectionStatus === "error" && (
-              <>
-                <XCircle size={18} className="text-red-400" />
-                <span className="text-sm text-red-400">
-                  {connectionError}
-                </span>
-              </>
-            )}
+            <div role="status" className="min-w-0">
+              {connectionStatus === "idle" && <Badge>Not checked yet</Badge>}
+              {connectionStatus === "checking" && <Badge variant="processing">Checking connection…</Badge>}
+              {connectionStatus === "connected" && <Badge variant="success">Connected — {availableModels.length} model{availableModels.length !== 1 ? "s" : ""} available</Badge>}
+              {connectionStatus === "error" && <Badge variant="danger">Connection unavailable · {connectionError}</Badge>}
+            </div>
             <Button
               variant="ghost"
               size="sm"
+              aria-label="Check connection"
               onClick={checkOllama}
               disabled={connectionStatus === "checking"}
             >
@@ -164,7 +134,7 @@ export function SettingsPage() {
               <select
                 value={ollamaModel}
                 onChange={(e) => setOllamaModel(e.target.value)}
-                className="flex-1 rounded-md border bg-[var(--studio-surface)] px-3 py-2 text-sm text-[var(--studio-text)] focus:outline-none focus:ring-1 focus:ring-[var(--studio-accent)]"
+                className="flex-1 rounded-md border border-qah-border-pale bg-[var(--studio-surface)] px-3 py-2 text-sm text-[var(--studio-text)] focus:outline-none focus:ring-1 focus:ring-[var(--studio-accent)]"
               >
                 {availableModels.length > 0 ? (
                   availableModels.map((m) => (
@@ -196,8 +166,8 @@ export function SettingsPage() {
             Save Ollama Settings
           </Button>
 
-          <div className="rounded-md border border-amber-800/30 bg-amber-900/10 p-3">
-            <p className="text-xs text-amber-400">
+          <div className="rounded-md border border-qah-warning/30 bg-qah-warning/10 p-3">
+            <p className="text-xs text-qah-warning">
               <strong>Note:</strong> Make sure Ollama is running locally before
               using AI skills. Install from{" "}
               <a

@@ -9,7 +9,7 @@ import type { ProjectManifest } from "@/types/project";
 interface CreateProjectModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreate: (manifest: ProjectManifest) => void;
+  onCreate: (manifest: ProjectManifest) => Promise<void>;
 }
 
 export function CreateProjectModal({
@@ -21,8 +21,16 @@ export function CreateProjectModal({
   const [type, setType] = useState<(typeof PROJECT_TYPES)[number]>("content");
   const [description, setDescription] = useState("");
 
-  const handleCreate = () => {
-    if (!name.trim()) return;
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const close = () => {
+    if (saving) return;
+    setError("");
+    onClose();
+  };
+
+  const handleCreate = async () => {
+    if (saving || !name.trim()) return;
 
     const now = new Date().toISOString();
     const manifest: ProjectManifest = {
@@ -40,7 +48,16 @@ export function CreateProjectModal({
       progress: 0,
     };
 
-    onCreate(manifest);
+    setSaving(true);
+    setError("");
+    try {
+      await onCreate(manifest);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Project creation failed.");
+      return;
+    } finally {
+      setSaving(false);
+    }
     setName("");
     setType("content");
     setDescription("");
@@ -48,7 +65,7 @@ export function CreateProjectModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Create New Project">
+    <Modal isOpen={isOpen} onClose={close} title="Create New Project">
       <div className="space-y-4">
         <Input
           label="Project Name"
@@ -89,11 +106,12 @@ export function CreateProjectModal({
           />
         </div>
 
+        {error && <p role="alert">{error}</p>}
         <div className="flex justify-end gap-2">
-          <Button variant="secondary" onClick={onClose}>
+          <Button variant="secondary" onClick={close} disabled={saving}>
             Cancel
           </Button>
-          <Button onClick={handleCreate} disabled={!name.trim()}>
+          <Button onClick={handleCreate} disabled={saving || !name.trim()}>
             Create Project
           </Button>
         </div>

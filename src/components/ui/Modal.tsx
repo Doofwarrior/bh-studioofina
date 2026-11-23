@@ -1,4 +1,5 @@
 import { cn } from "@/utils/cn";
+import { Button } from "./Button";
 import { X } from "lucide-react";
 import type { ReactNode } from "react";
 
@@ -17,7 +18,7 @@ export function Modal({ isOpen, onClose, title, children, size = "md" }: ModalPr
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--qah-bg)]/80 backdrop-blur-sm">
       <div
         className={cn(
-          "relative rounded-[2px] border border-[var(--qah-border-strong)] bg-[var(--qah-surface)] p-6 shadow-xl",
+          "qah-panel-enter relative rounded-[2px] border border-[var(--qah-border-strong)] bg-[var(--qah-surface)] p-6 shadow-xl",
           {
             "max-w-sm": size === "sm",
             "max-w-lg": size === "md",
@@ -29,12 +30,15 @@ export function Modal({ isOpen, onClose, title, children, size = "md" }: ModalPr
           <h2 className="text-lg font-semibold text-[var(--qah-text)]">
             {title}
           </h2>
-          <button
+          <Button
+            type="button"
+            variant="secondary"
+            aria-label="Close dialog"
             onClick={onClose}
-            className="rounded-[2px] p-1 text-[var(--qah-text-muted)] hover:bg-[var(--qah-surface-raised)] hover:text-[var(--qah-text)]"
+            className="h-9 w-9 shrink-0 p-0"
           >
             <X size={18} />
-          </button>
+          </Button>
         </div>
         {children}
       </div>

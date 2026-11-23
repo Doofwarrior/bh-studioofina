@@ -50,7 +50,7 @@ export function DecisionArchiveViewer({
                   <p className="text-sm font-medium text-[var(--studio-text)]">
                     {decision.question}
                   </p>
-                  <p className="mt-1 text-xs text-[var(--studio-text-muted)]">
+                  <p className="data-meta mt-1">
                     {formatDate(decision.timestamp)}
                   </p>
                 </div>

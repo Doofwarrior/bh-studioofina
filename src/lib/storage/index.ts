@@ -208,45 +208,57 @@ export async function createProject(
 ): Promise<void> {
   ProjectManifestSchema.parse(manifest);
 
-  // Save to localStorage (primary store for v1.0 browser build)
-  const projects = lsGet<ProjectManifest[]>("projects") || [];
+  if (!navigator.locks) throw new Error("Safe project creation requires browser lock support.");
+  // All slugs share one browser index. Serialize the entire check-and-create.
+  await navigator.locks.request("qah:create-project", async () => {
+    function readAvailableIndex() {
+      const raw = localStorage.getItem(LS_PREFIX + "projects");
+      const projects: ProjectManifest[] = raw === null ? [] : JSON.parse(raw);
+      // Validate without transforming older records or stripping extension fields.
+      ProjectManifestSchema.array().parse(projects);
+      if (projects.some(p => p.slug === manifest.slug || p.id === manifest.id))
+        throw new Error(`A project with this ID or slug already exists: ${manifest.slug}`);
+      return projects;
+    }
+    readAvailableIndex();
 
-  if (projects.some((p) => p.slug === manifest.slug)) {
-    throw new Error(`Project with slug already exists: ${manifest.slug}`);
-  }
+    const workspace = workspaceHandle;
+    if (workspace) {
+      if (await workspace.queryPermission({mode:"readwrite"}) !== "granted")
+        throw new Error("Workspace write permission is unavailable. Reconnect the folder before creating a project.");
 
-  projects.push(manifest);
-  lsSet("projects", projects);
-
-  // Create folder structure in File System Access API if available
-  if (workspaceHandle) {
-    try {
-      const projectsDir = await workspaceHandle.getDirectoryHandle("projects", {
-        create: true,
-      });
-      const projectDir = await projectsDir.getDirectoryHandle(manifest.slug, {
-        create: true,
-      });
-
-      for (const folder of PROJECT_FOLDERS) {
-        await projectDir.getDirectoryHandle(folder, { create: true });
+      async function lookup(parent: FileSystemDirectoryHandle, name: string) {
+        try {
+          return await parent.getDirectoryHandle(name);
+        } catch (error) {
+          if (error instanceof DOMException && error.name === "NotFoundError") return null;
+          throw error;
+        }
       }
 
-      // Write project.json
-      const fileHandle = await projectDir.getFileHandle(
-        PROJECT_MANIFEST_FILENAME,
-        { create: true }
-      );
-      const writable = await fileHandle.createWritable();
-      await writable.write(JSON.stringify(manifest, null, 2));
-      await writable.close();
-    } catch (err) {
-      console.warn("[Storage] File System Access API failed, using localStorage:", err);
+      let projectsDir = await lookup(workspace, "projects");
+      if (projectsDir && await lookup(projectsDir, manifest.slug))
+        throw new Error(`Workspace directory already exists: ${manifest.slug}`);
+      projectsDir ??= await workspace.getDirectoryHandle("projects", {create:true});
+      // File System Access has no exclusive mkdir. Other origins and external
+      // filesystem writers do not participate in this origin's Web Lock.
+      const projectDir = await projectsDir.getDirectoryHandle(manifest.slug, {create:true});
+      for await (const entry of projectDir.entries()) {
+        throw new Error(`Workspace directory already contains ${entry[0]}. Creation stopped.`);
+      }
+      for (const folder of PROJECT_FOLDERS)
+        await projectDir.getDirectoryHandle(folder, {create:true});
+      const file = await projectDir.getFileHandle(PROJECT_MANIFEST_FILENAME, {create:true});
+      if ((await file.getFile()).size > 0)
+        throw new Error("Workspace manifest already exists. Creation stopped.");
+      const writer = await file.createWritable();
+      await writer.write(JSON.stringify(manifest, null, 2));
+      await writer.close();
     }
-  }
-
-  // Cache it
-  projectCache.set(manifest.id, manifest);
+    // Project edits can update unrelated index entries during filesystem I/O.
+    lsSet("projects", [...readAvailableIndex(), manifest]);
+    projectCache.set(manifest.id, manifest);
+  });
 }
 
 export async function readProjectManifest(
@@ -498,56 +510,103 @@ export async function listFiles(
 
 // ─── Decision Log ───
 
-export async function appendDecision(
-  projectSlug: string,
-  entry: DecisionEntry
-): Promise<void> {
-  DecisionEntrySchema.parse(entry);
-
-  const key = `project:${projectSlug}:decisions:decisions.json`;
-  const existing = lsGet<DecisionEntry[]>(key) || [];
-  existing.push(entry);
-  lsSet(key, existing);
-
-  // Also write to File System Access API
-  await writeFile(
-    projectSlug,
-    "decisions",
-    "decisions.json",
-    JSON.stringify(existing, null, 2)
-  );
+export function decodeDecisionLog(raw: string, source: string): DecisionEntry[] {
+  try {
+    let value: unknown = JSON.parse(raw);
+    if (typeof value === "string") value = JSON.parse(value);
+    DecisionEntrySchema.array().parse(value);
+    // Keep extension metadata that schema parsing would otherwise strip.
+    return value as DecisionEntry[];
+  } catch {
+    throw new Error(`Invalid decision log in ${source}. Check the original data before appending.`);
+  }
 }
 
-export async function readDecisions(
-  projectSlug: string
-): Promise<DecisionEntry[]> {
-  // Try File System Access API first
+// Insert local-only entries before their next shared ID to preserve both logs' order.
+export function reconcileDecisions(disk: DecisionEntry[], local: DecisionEntry[]): DecisionEntry[] {
+  const rows = new Map(disk.map(row => [row.id, row]));
+  if (rows.size !== disk.length || new Set(local.map(row => row.id)).size !== local.length)
+    throw new Error("Duplicate IDs within a decision log. Review the original entries.");
+  const result: DecisionEntry[] = [];
+  let cursor = 0;
+  for (const row of local) {
+    const shared = rows.get(row.id);
+    if (shared) {
+      if (JSON.stringify(shared) !== JSON.stringify(row))
+        throw new Error(`Conflicting decision log entries for ${row.id}.`);
+      while (cursor < disk.length && disk[cursor].id !== row.id) result.push(disk[cursor++]);
+      if (cursor === disk.length) throw new Error("Conflicting decision log order.");
+      cursor++;
+    }
+    result.push(row);
+  }
+  return result.concat(disk.slice(cursor));
+}
+
+async function decisionState(slug: string) {
+  const key = `project:${slug}:decisions:decisions.json`;
+  const raw = localStorage.getItem(LS_PREFIX + key);
+  const local = raw === null ? [] : decodeDecisionLog(raw, "browser storage");
+  let disk: DecisionEntry[] = [];
+  let diskText: string | undefined;
+  let project: FileSystemDirectoryHandle | undefined;
   if (workspaceHandle) {
     try {
-      const projectsDir = await workspaceHandle.getDirectoryHandle("projects");
-      const projectDir = await projectsDir.getDirectoryHandle(projectSlug);
-      const decisionsDir = await projectDir.getDirectoryHandle("decisions");
-      const fileHandle = await decisionsDir.getFileHandle("decisions.json");
-      const file = await fileHandle.getFile();
-      const text = await file.text();
-      const decisions = JSON.parse(text) as unknown[];
-      return decisions.map((d) => DecisionEntrySchema.parse(d));
-    } catch {
-      // Fall through to localStorage
+      const projects = await workspaceHandle.getDirectoryHandle("projects");
+      project = await projects.getDirectoryHandle(slug);
+    } catch (error) {
+      if (!(error instanceof DOMException && error.name === "NotFoundError")) throw error;
+    }
+    if (project) {
+      const known = lsGet<ProjectManifest[]>("projects")?.find(p => p.slug === slug);
+      if (known) {
+        const manifest = await (await project.getFileHandle(PROJECT_MANIFEST_FILENAME)).getFile();
+        if (ProjectManifestSchema.parse(JSON.parse(await manifest.text())).id !== known.id)
+          throw new Error("Workspace project identity differs. Check the connected folder.");
+      }
+      try {
+        const dir = await project.getDirectoryHandle("decisions");
+        const handle = await dir.getFileHandle("decisions.json");
+        diskText = await (await handle.getFile()).text();
+        disk = decodeDecisionLog(diskText, "workspace");
+      } catch (error) {
+        if (!(error instanceof DOMException && error.name === "NotFoundError")) throw error;
+      }
     }
   }
+  return {key, raw, diskText, project, entries: reconcileDecisions(disk, local)};
+}
 
-  // Fallback to localStorage
-  const key = `project:${projectSlug}:decisions:decisions.json`;
-  const existing = lsGet<DecisionEntry[]>(key) || [];
-  return existing.filter((d) => {
-    try {
-      DecisionEntrySchema.parse(d);
-      return true;
-    } catch {
-      return false;
+export async function appendDecision(projectSlug: string, entry: DecisionEntry): Promise<void> {
+  DecisionEntrySchema.parse(entry);
+  if (!globalThis.navigator?.locks) throw new Error("Safe decision-log writes require browser lock support.");
+  await navigator.locks.request("qah:decision-log:" + projectSlug, async () => {
+    const state = await decisionState(projectSlug);
+    const existing = state.entries.find(row => row.id === entry.id);
+    if (existing && JSON.stringify(existing) !== JSON.stringify(entry))
+      throw new Error(`Conflicting decision log entries for ${entry.id}.`);
+    if (!existing) state.entries.push(entry);
+    // Canonical file representation: JSON array text, stored as a string by lsSet.
+    const content = JSON.stringify(state.entries, null, 2);
+    if (state.project && state.diskText !== content) {
+      if (state.diskText !== undefined)
+        lsSet(`backup:${projectSlug}:decisions:decisions.json:${crypto.randomUUID()}`, state.diskText);
+      const dir = await state.project.getDirectoryHandle("decisions", {create:true});
+      const file = await dir.getFileHandle("decisions.json", {create:true});
+      const writer = await file.createWritable();
+      await writer.write(content);
+      await writer.close();
+    }
+    if (state.raw !== JSON.stringify(content)) {
+      if (state.raw !== null)
+        lsSet(`backup:${projectSlug}:decisions:decisions.json:${crypto.randomUUID()}`, JSON.parse(state.raw));
+      lsSet(state.key, content);
     }
   });
+}
+
+export async function readDecisions(projectSlug: string): Promise<DecisionEntry[]> {
+  return (await decisionState(projectSlug)).entries;
 }
 
 // ─── Prompt Assets ───
@@ -611,4 +670,114 @@ export async function createBackup(projectSlug: string): Promise<void> {
       // Folder might not exist
     }
   }
+}
+
+// Attachments use the existing project references directory. Verify the on-disk
+// project identity because the browser cache may describe a previous workspace.
+async function referenceDirectory(projectId: string) {
+  if (!workspaceHandle)
+    throw Error("Connect the workspace folder to access file copies.");
+  const project = (await listProjects()).find((p) => p.id === projectId);
+  if (!project) throw Error("Project unavailable.");
+  const projects = await workspaceHandle.getDirectoryHandle("projects");
+  const dir = await projects.getDirectoryHandle(project.slug);
+  const manifest = await (
+    await dir.getFileHandle(PROJECT_MANIFEST_FILENAME)
+  ).getFile();
+  if (
+    ProjectManifestSchema.parse(JSON.parse(await manifest.text())).id !==
+    projectId
+  )
+    throw Error("Workspace project identity changed.");
+  return dir.getDirectoryHandle("references");
+}
+export async function copyTaskFile(projectId: string, file: File) {
+  const dir = await referenceDirectory(projectId);
+  const name = crypto.randomUUID() + "-" + file.name;
+  try {
+    await dir.getFileHandle(name);
+    throw Error("Destination already exists.");
+  } catch (err) {
+    if (!(err instanceof DOMException && err.name === "NotFoundError"))
+      throw err;
+  }
+  const handle = await dir.getFileHandle(name, { create: true });
+  const writer = await handle.createWritable();
+  await writer.write(file);
+  await writer.close();
+  const stored = await handle.getFile();
+  if (stored.size !== file.size) throw Error("Stored file size differs.");
+  return (
+    "workspace-copy:" +
+    encodeURIComponent(projectId) +
+    "/" +
+    encodeURIComponent(name)
+  );
+}
+export async function readTaskCopy(projectId: string, link: string) {
+  const prefix = "workspace-copy:" + encodeURIComponent(projectId) + "/";
+  if (!link.startsWith(prefix))
+    throw Error("File belongs to a different project.");
+  const dir = await referenceDirectory(projectId);
+  return (
+    await dir.getFileHandle(decodeURIComponent(link.slice(prefix.length)))
+  ).getFile();
+}
+
+// The secondary destination uses the same browser-authorized handle store as the workspace.
+export function backupWorkspace() { return workspaceHandle; }
+async function readBackupSetting<T>(key: string): Promise<T | undefined> {
+  const db = await openDB();
+  try {
+    const request = db.transaction("handles").objectStore("handles").get(key);
+    return await new Promise((resolve, reject) => {
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  } finally { db.close(); }
+}
+
+async function writeBackupSetting(key: string, value?: unknown) {
+  const db = await openDB();
+  try {
+    const tx = db.transaction("handles", "readwrite", key.startsWith("restore-") ? {durability: "strict"} : undefined);
+    const store = tx.objectStore("handles");
+    if (value === undefined) store.delete(key); else store.put(value, key);
+    await new Promise<void>((resolve, reject) => {
+      tx.oncomplete = () => resolve();
+      tx.onabort = () => reject(tx.error ?? Error("Backup setting could not be saved."));
+    });
+  } finally { db.close(); }
+}
+
+export function secondaryBackupFolder() {
+  return readBackupSetting<FileSystemDirectoryHandle>("backup-secondary");
+}
+
+export async function configureSecondaryBackup(enable: boolean) {
+  if (enable && typeof window.showDirectoryPicker !== "function")
+    throw Error("This browser does not expose its folder picker.");
+  const folder = enable ? await window.showDirectoryPicker({mode: "readwrite"}) : undefined;
+  if (folder && workspaceHandle &&
+      (await workspaceHandle.resolve(folder) !== null || await folder.resolve(workspaceHandle) !== null))
+    throw Error("Choose a separate folder outside the workspace.");
+  await writeBackupSetting("backup-secondary", folder);
+  return folder?.name;
+}
+
+// Called inside the backup lock. Distinct workspaces can have the same name
+// and can share a secondary destination. Rotate each source independently.
+export async function backupSourceId(folder: FileSystemDirectoryHandle) {
+  const sources = await readBackupSetting<{folder: FileSystemDirectoryHandle; id: string}[]>("backup-sources") ?? [];
+  for (const source of sources) if (await folder.isSameEntry(source.folder)) return source.id;
+  const id = crypto.randomUUID();
+  await writeBackupSetting("backup-sources", [...sources, {folder, id}]);
+  return id;
+}
+
+export function readRestoreState<T>(key: "pending" | "previous") {
+  return readBackupSetting<T>("restore-" + key);
+}
+export function writeRestoreState(key: "pending" | "previous", state?: unknown) {
+  return writeBackupSetting("restore-" + key, state);
 }

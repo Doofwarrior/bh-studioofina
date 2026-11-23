@@ -1,0 +1,37 @@
+.qah-indicator {
+  --signal: var(--qah-text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: .38em;
+  max-width: 100%;
+  width: fit-content;
+  padding: .2em .55em;
+  border-inline-start: 2px solid var(--signal);
+  background: #0b1210;
+  color: var(--signal);
+  font: 500 .69rem/1.4 ui-monospace, monospace;
+  letter-spacing: .025em;
+  overflow-wrap: anywhere;
+}
+.qah-indicator svg { flex: none; }
+.qah-indicator--success, .qah-indicator--processing { --signal: #75c3a1; }
+.qah-indicator--warning { --signal: #bca371; }
+.qah-indicator--danger { --signal: #eae6da; outline: 1px solid #bca371; border-inline-start-style: double; border-inline-start-width: 4px; }
+.qah-progress-track {
+  display: block;
+  min-width: 0;
+  height: .45rem;
+  background: #183f32;
+  mask-image: repeating-linear-gradient(110deg, black 0 7px, transparent 7px 9px);
+}
+.qah-progress-track > span { display: block; height: 100%; background: #75c3a1; }
+.qah-elapsed { color: #eae6da; font-family: ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: no-preference) {
+  .qah-indicator--processing svg { animation: qah-processing 1.6s linear infinite; }
+}
+@keyframes qah-processing { to { transform: rotate(360deg); } }
+@media (max-width: 700px) {
+  .qah-system-bar__status .qah-indicator { font-size: 0; padding: 2px; }
+}
+
+.qah-navigation-rail__footer .qah-indicator:last-child { color: var(--signal); }

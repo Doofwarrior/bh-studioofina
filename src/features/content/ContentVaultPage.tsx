@@ -87,6 +87,7 @@ export function ContentVaultPage() {
               return (
                 <button
                   key={category.id}
+                  aria-pressed={active}
                   type="button"
                   onClick={() => {
                     setActiveCategory(category.id);
@@ -140,17 +141,17 @@ export function ContentVaultPage() {
                     </button>
                     <div className="flex items-center gap-1">
                       {note.category !== "archive" && (
-                        <button type="button" title="Archive" onClick={() => { archiveContentNote(note.id); refresh(); }} className="border border-qah-border p-1.5 text-qah-text-subtle hover:text-qah-accent">
+                        <button type="button" title="Archive" onClick={() => { archiveContentNote(note.id); refresh(); }} className="qah-control qah-control--secondary p-1.5">
                           <Archive size={13} />
                         </button>
                       )}
-                      <button type="button" title="Delete" onClick={() => { deleteContentNote(note.id); if (editingId === note.id) resetEditor(); refresh(); }} className="border border-qah-border p-1.5 text-qah-text-subtle hover:text-red-300">
+                      <button type="button" title="Delete" onClick={() => { deleteContentNote(note.id); if (editingId === note.id) resetEditor(); refresh(); }} className="qah-control qah-control--danger p-1.5">
                         <Trash2 size={13} />
                       </button>
                     </div>
                   </div>
                   <div className="mt-3 flex items-center justify-between border-t border-qah-border pt-2 font-mono text-[9px] uppercase tracking-[0.1em] text-qah-text-subtle">
-                    <span>{new Date(note.updatedAt).toLocaleDateString()}</span>
+                    <span className="data-meta">{new Date(note.updatedAt).toLocaleDateString()}</span>
                     <select
                       aria-label={`Move ${note.title}`}
                       value={note.category}

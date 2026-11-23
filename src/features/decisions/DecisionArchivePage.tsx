@@ -26,7 +26,7 @@ export function DecisionArchivePage({ projectSlug }: DecisionArchivePageProps) {
       } catch (err) {
         console.error("[DecisionArchive] Failed to load decisions:", err);
         if (mounted) {
-          setError("Failed to load decisions");
+          setError(err instanceof Error ? err.message : "Failed to load decisions");
           setDecisions([]);
         }
       } finally {

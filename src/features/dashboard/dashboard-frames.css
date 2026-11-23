@@ -1,0 +1,100 @@
+/* Clip the two paint layers only. Content, hit areas and focus rings stay intact. */
+.hud-dashboard .hud-frame,
+.hud-projects [data-project-card] {
+  --frame-line: var(--qah-border-strong);
+  --frame-fill: var(--qah-surface);
+  --frame-shape: polygon(
+    12px 0, 34% 0, calc(34% + 4px) 4px, calc(100% - 26px) 4px,
+    calc(100% - 22px) 0, calc(100% - 9px) 0, 100% 9px,
+    100% calc(100% - 10px), calc(100% - 10px) 100%,
+    22% 100%, calc(22% - 3px) calc(100% - 3px), 5px calc(100% - 3px),
+    0 calc(100% - 8px), 0 12px
+  );
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+}
+
+.hud-dashboard .hud-frame::before,
+.hud-dashboard .hud-frame::after,
+.hud-projects [data-project-card]::before,
+.hud-projects [data-project-card]::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  clip-path: var(--frame-shape);
+  background: var(--frame-line);
+}
+
+.hud-dashboard .hud-frame::after,
+.hud-projects [data-project-card]::after {
+  inset: 1px;
+  background: var(--frame-fill);
+}
+
+.hud-dashboard {
+  padding: 28px clamp(20px, 2vw, 32px) 25px;
+}
+
+.hud-dashboard .hud-perimeter {
+  position: absolute;
+  inset: 9px;
+  pointer-events: none;
+  --frame-line: var(--qah-identity);
+  --frame-fill: var(--qah-bg);
+  --frame-shape: polygon(
+    22px 0, 29% 0, calc(29% + 9px) 9px, 64% 9px, calc(64% + 5px) 4px,
+    calc(100% - 15px) 4px, 100% 19px, 100% 46%, calc(100% - 4px) calc(46% + 4px),
+    calc(100% - 4px) 72%, 100% calc(72% + 4px), 100% calc(100% - 16px),
+    calc(100% - 16px) 100%, 86% 100%, calc(86% - 7px) calc(100% - 7px),
+    77% calc(100% - 7px), calc(77% - 7px) 100%, 46% 100%,
+    calc(46% - 5px) calc(100% - 5px), 14px calc(100% - 5px),
+    0 calc(100% - 19px), 0 22px
+  );
+}
+
+.hud-trace {
+  position: absolute;
+  color: var(--qah-identity);
+  fill: currentColor;
+}
+
+.hud-trace path {
+  fill: none;
+  stroke: currentColor;
+}
+
+.hud-trace--top { top: -7px; right: 12px; }
+.hud-trace--left { top: 24px; left: -9px; }
+.hud-trace--bottom { bottom: -5px; left: 14px; }
+
+.hud-dashboard .hud-command {
+  --frame-line: var(--qah-border-pale);
+  --frame-fill: linear-gradient(105deg, var(--qah-accent-dark), var(--qah-surface) 55%);
+}
+
+.hud-dashboard .hud-frame--compact,
+.hud-projects [data-project-card] {
+  --frame-shape: polygon(
+    7px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 8px),
+    calc(100% - 8px) 100%, 68% 100%, calc(68% - 3px) calc(100% - 3px),
+    0 calc(100% - 3px), 0 7px
+  );
+}
+
+.hud-dashboard .hud-actions,
+.hud-projects [data-project-card] {
+  --frame-fill: var(--qah-bg);
+}
+
+.hud-projects [data-project-card] {
+  border-color: transparent;
+  background: transparent;
+}
+
+.hud-projects [data-project-card]:is(:hover, :focus-visible) {
+  --frame-line: var(--qah-accent);
+  --frame-fill: var(--qah-surface-raised);
+}

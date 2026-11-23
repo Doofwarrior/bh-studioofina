@@ -17,26 +17,28 @@ export default {
           800: "#212529",
           900: "#121416",
         },
-        /* QAL'AT AL-HAQQ design system — Glyphic Matrix × Cyber-Brutalism */
+        /* Shared application palette. The stylesheet uses these same values
+           for the qah and legacy studio custom properties. */
         qah: {
-          bg: "#030403",
-          surface: "#080a08",
-          "surface-raised": "#0d100d",
-          border: "#1a241a",
-          "border-strong": "#243024",
-          "border-pale": "#2d3a2d",
-          "border-mute": "#1f291f",
-          text: "#e8ece8",
-          "text-muted": "#9aa89a",
-          "text-subtle": "#5a685a",
-          "text-dim": "#3a483a",
-          accent: "#7fff7f",
-          "accent-bright": "#9aff9a",
-          "accent-dim": "#4a8f4a",
-          "accent-dark": "#2a4f2a",
-          warning: "#c4a030",
-          danger: "#a04040",
-          success: "#4a7a4a",
+          bg: "#0B1210",                 // Obsidian
+          surface: "#10271F",
+          "surface-raised": "#183F32",   // Imperial Emerald
+          border: "#345247",
+          "border-strong": "#527365",
+          "border-pale": "#779082",
+          "border-mute": "#273E35",
+          text: "#EAE6DA",               // Warm Ivory
+          "text-muted": "#C6CEC3",
+          "text-subtle": "#AEC1B4",
+          "text-dim": "#9DAF9F",
+          identity: "#BCA371",           // Antique Gold
+          accent: "#75C3A1",             // Jade
+          "accent-bright": "#A4D9BC",
+          "accent-dim": "#73A78E",
+          "accent-dark": "#183F32",
+          warning: "#E6BF79",
+          danger: "#F0A49A",
+          success: "#75C3A1",
         },
       },
       fontFamily: {

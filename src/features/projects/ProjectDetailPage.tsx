@@ -104,16 +104,16 @@ export function ProjectDetailPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex min-w-0 max-w-full flex-wrap items-center gap-3">
           <Button variant="ghost" size="sm" onClick={onBack}>
             <ArrowLeft size={16} />
           </Button>
-          <div>
+          <div className="min-w-0 break-words">
             <h1 className="text-2xl font-bold text-[var(--studio-text)]">
               {project.name}
             </h1>
-            <p className="text-sm text-[var(--studio-text-muted)]">
+            <p className="data-meta">
               {project.slug} · Created {formatDate(project.createdAt)}
             </p>
           </div>
@@ -213,7 +213,7 @@ export function ProjectDetailPage({
                   <p className="font-medium capitalize text-[var(--studio-text)]">
                     {folder.name}
                   </p>
-                  <p className="text-xs text-[var(--studio-text-subtle)]">
+                  <p className="data-meta">
                     {folderCounts[folder.name] ?? 0} items
                   </p>
                 </div>

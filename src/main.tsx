@@ -5,7 +5,9 @@
  * State machine preserved from BH Studio v1.0 baseline.
  */
 
-import { StrictMode, useState, useEffect } from "react";
+import { RestorePage } from "@/features/settings/RestorePage";
+import {pendingRestore,restoreLock} from "@/lib/storage/applicationRestore";
+import { StrictMode, useState, useEffect, useCallback } from "react";
 import { createRoot } from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
 import { WorkspaceProvider } from "@/app/providers/WorkspaceProvider";
@@ -28,12 +30,12 @@ function App() {
   const [localMode, setLocalMode] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
 
+  const enter = useCallback(() => setIsChecking(false), []);
+  const [checked, setChecked] = useState(false);
+  const [startupError, setStartupError] = useState("");
+
   useEffect(() => {
     async function init() {
-      const minimumBootDuration = new Promise<void>((resolve) => {
-        setTimeout(resolve, 2000);
-      });
-
       let ready = false;
 
       try {
@@ -41,13 +43,16 @@ function App() {
         await initialize();
         ready = isWorkspaceConnected();
       } catch (err) {
+        setStartupError("Workspace initialization failed. Select the folder again or continue in local mode.");
         console.error("[App] Workspace init failed:", err);
       }
 
-      await minimumBootDuration;
-
+      const issue = getWorkspaceAccessIssue();
+      if (issue === "storage-error") setStartupError("Workspace storage could not be opened. Select the folder again or continue in local mode.");
+      if (issue === "restoration-failed") setStartupError("Your saved workspace needs authorization. Select the folder again or continue in local mode.");
       setWorkspaceReady(ready);
-      setIsChecking(false);
+      setChecked(true);
+
     }
     init();
   }, []);
@@ -55,9 +60,10 @@ function App() {
   return (
     <Bootloader>
       {isChecking ? (
-        <BootSequence />
+        <BootSequence checked={checked} connected={workspaceReady} error={!!startupError} enter={enter} />
       ) : !workspaceReady && !localMode ? (
         <WorkspaceSetup
+          initialError={startupError}
           onReady={() => setWorkspaceReady(true)}
           onContinueLocal={() => setLocalMode(true)}
         />
@@ -78,44 +84,46 @@ function App() {
 // Boot Sequence
 // ------------------------------------------------------------
 
-function BootSequence() {
-  const [step, setStep] = useState(0);
+const staticLogo = "/boot/citadel-of-truth.png";
+const revealLogo = "/boot/terminal-reveal.webp";
 
+function BootSequence({ checked, connected, error, enter }: {
+  checked: boolean; connected: boolean; error: boolean; enter: () => void;
+}) {
+  const [phase, setPhase] = useState<"reveal" | "identity" | "flanks" | "closing">(
+    () => matchMedia("(prefers-reduced-motion: reduce)").matches ? "closing" : "reveal"
+  );
+  const [revealFailed, setRevealFailed] = useState(false);
   useEffect(() => {
-    const t1 = setTimeout(() => setStep(1), 500);
-    const t2 = setTimeout(() => setStep(2), 1000);
-
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-    };
+    const preference = matchMedia("(prefers-reduced-motion: reduce)");
+    const reduce = () => { if (preference.matches) setPhase("closing"); };
+    preference.addEventListener("change", reduce);
+    return () => preference.removeEventListener("change", reduce);
   }, []);
+  useEffect(() => {
+    if ((phase === "flanks" || phase === "closing") && !checked) return;
+    if (error) { enter(); return; }
+    const timer = window.setTimeout(() => {
+      if (phase === "reveal") setPhase("identity");
+      else if (phase === "identity") setPhase("flanks");
+      else if (phase === "flanks") setPhase("closing");
+      else enter();
+    }, { reveal: 1600, identity: 960, flanks: 640, closing: 2600 }[phase]);
+    return () => window.clearTimeout(timer);
+  }, [phase, checked, error, enter]);
+  const closing = phase === "closing" && checked;
 
-  const steps = [
-    { id: 0, label: "SYSTEM BOOT", detail: "Core modules loaded" },
-    { id: 1, label: "WORKSPACE CHECK", detail: "Verifying storage connection" },
-    { id: 2, label: "READY", detail: "Startup sequence complete" },
-  ];
-
-  // Presentation-only mapping of the reference's five status rows onto the
-  // existing three-state `step` value. No new timers/state are introduced.
   const statusRows = [
-    { label: "WORKSPACE", value: "READY", activeAt: 0 },
-    { label: "KNOWLEDGE", value: "SYNC", activeAt: 0 },
-    { label: "AI BRIDGE", value: "ONLINE", activeAt: 1 },
-    { label: "PROJECTS", value: "LOADED", activeAt: 1 },
-    { label: "AI SKILLS", value: "READY", activeAt: 2 },
+    { label: "WORKSPACE", value: !checked ? "CHECKING" : error ? "ATTENTION" : connected ? "READY" : "SETUP" },
+    ...["KNOWLEDGE", "AI BRIDGE", "PROJECTS", "AI SKILLS"].map(label => ({ label, value: "ON DEMAND" })),
   ];
-
-  const progressPct = ((step + 1) / steps.length) * 100;
-  const progressPctRounded = Math.round(progressPct);
   const segmentCount = 32;
-  const filledSegments = Math.round((progressPct / 100) * segmentCount);
+  const filledSegments = checked && !error ? segmentCount : 0;
 
   return (
-    <div className="relative flex h-screen w-screen items-center justify-center overflow-hidden bg-[rgba(3,4,3,0.55)] font-mono-technical">
+    <div className="relative flex min-h-[100svh] w-full items-center justify-center py-14 bg-[rgba(3,4,3,0.55)] font-mono-technical">
       {/* Corner / edge chrome */}
-      <div className="pointer-events-none absolute inset-0 hidden sm:block">
+      <div className="pointer-events-none absolute inset-0">
         <div className="absolute left-6 top-6 flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-qah-text-subtle">
           <span className="h-1.5 w-1.5 bg-qah-accent" />
           QALAT_SYSTEM_v1.0.0
@@ -132,18 +140,18 @@ function BootSequence() {
           QALAT_BOOT_SEQUENCE
         </div>
         <div
-          className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] uppercase tracking-[0.2em] text-qah-text-dim"
+          className="absolute left-4 hidden md:block top-1/2 -translate-y-1/2 text-[10px] uppercase tracking-[0.2em] text-qah-text-dim"
           style={{ writingMode: "vertical-rl" }}
         >
           SYS_INIT_SEQUENCER / 01
         </div>
         <div
-          className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] uppercase tracking-[0.2em] text-qah-text-dim"
+          className="absolute right-4 hidden md:block top-1/2 -translate-y-1/2 text-[10px] uppercase tracking-[0.2em] text-qah-text-dim"
           style={{ writingMode: "vertical-rl" }}
         >
           BOOT_01
         </div>
-        <div className="absolute right-6 top-24 w-48 border border-qah-border bg-qah-surface/60 px-3 py-2 text-[10px] uppercase tracking-wider text-qah-text-subtle">
+        <div className="absolute right-6 top-20 hidden xl:block w-48 border border-qah-border bg-qah-surface/60 px-3 py-2 text-[10px] uppercase tracking-wider text-qah-text-subtle">
           <div className="mb-1.5 flex items-center gap-1.5 text-qah-text-muted">
             <span className="h-1.5 w-1.5 bg-qah-accent" />
             GLYPH_STREAM_ACTIVE
@@ -167,9 +175,9 @@ function BootSequence() {
         </div>
       </div>
 
-      <div className="relative z-10 w-full max-w-xl px-6">
+      <div className="relative z-10 w-full max-w-3xl px-6 sm:px-12">
         {/* Bismillah frame */}
-        <div className="relative mb-8 border border-qah-border-strong bg-qah-surface/70 px-6 py-5 text-center">
+        <div className="relative mx-auto mb-5 max-w-md border border-qah-border-strong bg-qah-surface/70 px-6 py-5 text-center">
           <span className="absolute -left-px -top-px h-2 w-2 border-l border-t border-qah-accent-dim" />
           <span className="absolute -right-px -top-px h-2 w-2 border-r border-t border-qah-accent-dim" />
           <span className="absolute -bottom-px -left-px h-2 w-2 border-b border-l border-qah-accent-dim" />
@@ -186,27 +194,25 @@ function BootSequence() {
           </p>
         </div>
 
-        {/* Product identity, retained as the central boot reference hierarchy. */}
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold tracking-[0.08em] text-qah-text sm:text-4xl">
-            QAL&apos;AT AL-HAQQ
-          </h1>
-          <p
-            className="mt-2 font-arabic text-2xl text-qah-accent sm:text-3xl"
-            dir="rtl"
-            lang="ar"
-          >
-            قَلْعَةُ الْحَقّ
-          </p>
-          <p className="mt-2 text-xs uppercase tracking-[0.32em] text-qah-text-subtle">
-            The Citadel of Truth
-          </p>
+        <div className="mx-auto mb-4 h-[clamp(8rem,25svh,17rem)]">
+          <img className="h-full w-full object-contain" src={
+            closing ? "/boot/closing-calligraphy.png" :
+            phase === "flanks" ? "/boot/citadel-calligraphy.png" :
+            phase === "reveal" && !revealFailed ? revealLogo : staticLogo
+          } onError={() => setRevealFailed(true)}
+            alt={closing ? "Closing calligraphy" : "QAL’AT AL-HAQQ · قَلْعَةُ الْحَقّ"} />
         </div>
 
-        {/* Status rows */}
+        {closing ? (
+          <section className="text-center text-qah-text" aria-label="Boot complete">
+            <span className="inline-block border border-qah-accent px-6 py-1 text-sm tracking-widest text-qah-accent">SYSTEM READY</span>
+            <h1 className="mt-5 font-sans text-lg font-medium tracking-[0.16em] sm:text-2xl">HASBUNALLAHU WA NI’MAL WAKEEL</h1>
+            <p className="mx-auto mt-3 max-w-md font-sans text-sm leading-relaxed sm:text-base">Allah is sufficient for us, and He is the best Disposer of affairs.</p>
+          </section>
+        ) : <>
         <div className="space-y-1.5">
           {statusRows.map((row) => {
-            const isActive = step >= row.activeAt;
+            const isActive = checked && !error && row.label === "WORKSPACE";
             return (
               <div
                 key={row.label}
@@ -222,7 +228,7 @@ function BootSequence() {
                     isActive ? "text-qah-accent" : "text-qah-text-dim"
                   }
                 >
-                  {isActive ? row.value : "..."}
+                  {row.value}
                 </span>
               </div>
             );
@@ -232,7 +238,7 @@ function BootSequence() {
         {/* Progress */}
         <div className="mt-6">
           <div className="mb-2 text-xs uppercase tracking-[0.2em] text-qah-text-muted">
-            Accessing QAL&apos;AT_
+            {error ? "Workspace check requires attention" : "Workspace initialization"}
           </div>
           <div className="flex items-center gap-3">
             <div className="flex flex-1 gap-[2px]">
@@ -246,10 +252,16 @@ function BootSequence() {
               ))}
             </div>
             <span className="w-10 text-right text-sm font-bold text-qah-text">
-              {progressPctRounded}%
+              {error ? "!" : checked ? "100%" : "…"}
             </span>
           </div>
         </div>
+
+        </>}
+
+        {checked && <button type="button" className="qah-btn-secondary mx-auto mt-4 block" onClick={enter}>
+          {connected ? "Enter workspace" : "Continue to workspace setup"}
+        </button>}
 
         {/* Technical footer */}
         <div className="mt-8 flex items-center justify-between text-[10px] uppercase tracking-wider text-qah-text-subtle">
@@ -269,14 +281,16 @@ function BootSequence() {
 // ------------------------------------------------------------
 
 function WorkspaceSetup({
+  initialError,
   onReady,
   onContinueLocal,
 }: {
+  initialError: string;
   onReady: () => void;
   onContinueLocal: () => void;
 }) {
   const [isRequesting, setIsRequesting] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(initialError);
 
   const handleRequestAccess = async () => {
     setIsRequesting(true);
@@ -368,5 +382,21 @@ function WorkspaceSetup({
 
 const rootEl = document.getElementById("root");
 if (rootEl) {
-  createRoot(rootEl).render(<App />);
+  const root = createRoot(rootEl);
+  const recovery = new URLSearchParams(location.search).has("recover");
+  const open = async () => {
+    const pending = await pendingRestore();
+    if (pending && !recovery) { location.replace("/settings?recover"); return; }
+    root.render(recovery ? <RestorePage/> : <App/>);
+  };
+  if (navigator.locks) {
+    // Keep ordinary writers unmounted throughout recovery, including on reload.
+    void navigator.locks.request(restoreLock, {mode:recovery?"exclusive":"shared",ifAvailable:true},async lock=>{
+      if (!lock) {root.render(<p>Close other QAL’AT tabs and reload this page to continue.</p>);return;}
+      await open();
+      await new Promise<void>(resolve=>window.addEventListener("pagehide",()=>resolve(),{once:true}));
+    }).catch(e=>root.render(<p>Cannot check recovery state: {String(e)}</p>));
+    window.addEventListener("pageshow",e=>{if(e.persisted)location.reload();});
+  } else if(recovery) root.render(<p>Restore requires browser lock support.</p>);
+  else void open().catch(e=>root.render(<p>Cannot check recovery state: {String(e)}</p>));
 }

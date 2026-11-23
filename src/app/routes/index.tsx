@@ -12,6 +12,7 @@ import { ExportsPage } from "@/app/pages/ExportsPage";
 import { SettingsPage } from "@/app/pages/SettingsPage";
 import { DecisionArchivePage } from "@/features/decisions/DecisionArchivePage";
 import { ContentVaultPage } from "@/features/content/ContentVaultPage";
+import { CalendarPage } from "@/features/calendar/CalendarPage";
 import { PlannerPage } from "@/features/planner/PlannerPage";
 import { QuickCapturePage } from "@/features/capture/QuickCapturePage";
 import { GlobalSearchPage } from "@/features/search/GlobalSearchPage";
@@ -58,6 +59,10 @@ export function createAppRouter() {
         {
           path: "content",
           element: <ContentVaultPage />,
+        },
+        {
+          path: "calendar",
+          element: <CalendarPage />,
         },
         {
           path: "planner",

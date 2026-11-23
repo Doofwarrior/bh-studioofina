@@ -1,3 +1,4 @@
+@import "./status.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,36 +9,27 @@
 
 @layer base {
   :root {
-    /* ── QAL'AT AL-HAQQ primary design tokens — Glyphic Matrix × Cyber-Brutalism ── */
-    
-    /* Background system — near-black with deep green-black environmental tones */
-    --qah-bg: #030403;
-    --qah-surface: #080a08;
-    --qah-surface-raised: #0d100d;
-    
-    /* Border system — lighter structural tones, engineered feel */
-    --qah-border: #1a241a;
-    --qah-border-strong: #243024;
-    --qah-border-pale: #2d3a2d;
-    --qah-border-mute: #1f291f;
-    
-    /* Typography — pale/off-white for readability */
-    --qah-text: #e8ece8;
-    --qah-text-muted: #9aa89a;
-    --qah-text-subtle: #5a685a;
-    --qah-text-dim: #3a483a;
-    
-    /* Accent — archival olive rather than conventional neon */
-    --qah-accent: #b4c96b;
-    --qah-accent-bright: #d0df91;
-    --qah-accent-dim: #6e8441;
-    --qah-accent-dark: #27351d;
-    --qah-accent-glow: rgba(180, 201, 107, 0.12);
-    
-    /* Semantic colors — subdued, supporting readability */
-    --qah-warning: #c4a030;
-    --qah-danger: #a04040;
-    --qah-success: #4a7a4a;
+    /* Expose the Tailwind palette to components using custom properties. */
+    --qah-bg: theme("colors.qah.bg");
+    --qah-surface: theme("colors.qah.surface");
+    --qah-surface-raised: theme("colors.qah.surface-raised");
+    --qah-border: theme("colors.qah.border");
+    --qah-border-strong: theme("colors.qah.border-strong");
+    --qah-border-pale: theme("colors.qah.border-pale");
+    --qah-border-mute: theme("colors.qah.border-mute");
+    --qah-text: theme("colors.qah.text");
+    --qah-text-muted: theme("colors.qah.text-muted");
+    --qah-text-subtle: theme("colors.qah.text-subtle");
+    --qah-text-dim: theme("colors.qah.text-dim");
+    --qah-identity: theme("colors.qah.identity");
+    --qah-accent: theme("colors.qah.accent");
+    --qah-accent-bright: theme("colors.qah.accent-bright");
+    --qah-accent-dim: theme("colors.qah.accent-dim");
+    --qah-accent-dark: theme("colors.qah.accent-dark");
+    --qah-warning: theme("colors.qah.warning");
+    --qah-danger: theme("colors.qah.danger");
+    --qah-success: theme("colors.qah.success");
+    --qah-accent-glow: theme("colors.qah.accent / 12%");
 
     /* ── Legacy compatibility ──
        Existing components reference --studio-* variables.
@@ -57,6 +49,8 @@
   }
 
   html {
+    color-scheme: dark;
+    accent-color: var(--qah-accent);
     @apply bg-qah-bg text-qah-text;
     font-family: "Inter", system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -84,7 +78,7 @@
     }
   }
 
-  /* ── Selection styling — electric green highlight ── */
+  /* Text selection */
   ::selection {
     background-color: var(--qah-accent-dark);
     color: var(--qah-text);
@@ -198,10 +192,10 @@
     padding: 0.65rem;
     overflow: hidden;
     background:
-      linear-gradient(90deg, rgba(180, 201, 107, 0.035) 1px, transparent 1px),
-      linear-gradient(rgba(180, 201, 107, 0.025) 1px, transparent 1px),
-      radial-gradient(circle at 78% 8%, rgba(110, 132, 65, 0.14), transparent 28%),
-      #060806;
+      linear-gradient(90deg, theme("colors.qah.accent / 3.5%") 1px, transparent 1px),
+      linear-gradient(theme("colors.qah.accent / 2.5%") 1px, transparent 1px),
+      radial-gradient(circle at 78% 8%, theme("colors.qah.surface-raised / 14%"), transparent 28%),
+      var(--qah-bg);
     background-size: 64px 64px, 64px 64px, auto, auto;
   }
 
@@ -223,7 +217,7 @@
   .qah-frame {
     position: relative;
     border: 1px solid var(--qah-border-strong);
-    box-shadow: inset 0 0 0 1px rgba(180, 201, 107, 0.025);
+    box-shadow: inset 0 0 0 1px theme("colors.qah.accent / 2.5%");
   }
 
   .qah-frame::before,
@@ -296,8 +290,8 @@
     min-height: 8.25rem;
     padding: 1.15rem 1.25rem;
     background:
-      linear-gradient(90deg, rgba(180, 201, 107, 0.07), transparent 30%),
-      rgba(7, 10, 7, 0.92);
+      linear-gradient(90deg, theme("colors.qah.accent / 7%"), transparent 30%),
+      theme("colors.qah.surface / 92%");
   }
 
   .dashboard-eyebrow,
@@ -370,7 +364,7 @@
     border: 1px solid var(--qah-border);
     align-items: center;
     border-color: var(--qah-border-strong);
-    background: rgba(3, 5, 3, 0.72);
+    background: theme("colors.qah.bg / 72%");
   }
 
   .dashboard-action-frame__label {
@@ -397,8 +391,8 @@
     overflow: hidden;
     border-color: var(--qah-border-strong);
     background:
-      linear-gradient(135deg, rgba(180, 201, 107, 0.07), transparent 55%),
-      rgba(7, 10, 7, 0.94);
+      linear-gradient(135deg, theme("colors.qah.accent / 7%"), transparent 55%),
+      theme("colors.qah.surface / 94%");
   }
 
   .dashboard-metric-card::after {
@@ -440,7 +434,7 @@
     z-index: 2;
     margin-top: 0.55rem;
     padding: 1.1rem;
-    background: rgba(7, 10, 7, 0.95);
+    background: theme("colors.qah.surface / 95%");
   }
 
   .dashboard-projects-section__header {
@@ -469,7 +463,7 @@
     align-items: center;
     justify-content: center;
     border-color: var(--qah-border);
-    background-image: linear-gradient(rgba(180, 201, 107, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(180, 201, 107, 0.035) 1px, transparent 1px);
+    background-image: linear-gradient(theme("colors.qah.accent / 3.5%") 1px, transparent 1px), linear-gradient(90deg, theme("colors.qah.accent / 3.5%") 1px, transparent 1px);
     background-size: 20px 20px;
     padding: 2rem;
     text-align: center;
@@ -512,7 +506,7 @@
   .dashboard-project-card {
     min-height: 10.5rem;
     border-color: var(--qah-border-strong);
-    background: linear-gradient(145deg, rgba(180, 201, 107, 0.045), transparent 50%), var(--qah-surface);
+    background: linear-gradient(145deg, theme("colors.qah.accent / 4.5%"), transparent 50%), var(--qah-surface);
     transition: border-color 160ms ease, background-color 160ms ease, transform 160ms ease;
   }
 
@@ -606,21 +600,22 @@
 
 @layer components {
   /* S-05F: dashboard and shell are deliberately composed as a command system. */
-  .qah-shell { background: var(--qah-bg); }
+  .qah-shell { background: theme("colors.qah.bg / 90%"); }
+  .qah-shell:has(.hud-dashboard) { background-color: theme("colors.qah.bg / 25%"); }
   .qah-system-bar {
     display: grid; grid-template-columns: minmax(12rem, 0.8fr) minmax(16rem, 1.5fr) minmax(12rem, 0.8fr);
-    height: 3rem; border-bottom: 1px solid var(--qah-border-strong); background: #070907;
+    height: 3rem; border-bottom: 1px solid var(--qah-border-strong); background: var(--qah-surface);
     color: var(--qah-text-subtle); font: 0.625rem/1 "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .12em;
   }
   .qah-system-bar__identity, .qah-system-bar__utilities, .qah-system-bar__command { display: flex; align-items: center; min-width: 0; }
-  .qah-system-bar__identity { gap: .5rem; padding: 0 .9rem; border-right: 1px solid var(--qah-border); color: var(--qah-accent); font-weight: 700; }
-  .qah-system-bar__identity-arabic { color: var(--qah-text-muted); font-size: .72rem; letter-spacing: 0; }
+  .qah-system-bar__identity { gap: .5rem; padding: 0 .9rem; border-right: 1px solid var(--qah-border); color: var(--qah-identity); font-weight: 700; }
+  .qah-system-bar__identity-arabic { color: var(--qah-text); font-size: .72rem; letter-spacing: 0; }
   .qah-system-bar__command { justify-content: center; gap: .55rem; color: var(--qah-text-muted); }
   .qah-system-bar__utilities { justify-content: flex-end; gap: .7rem; padding: 0 .75rem; border-left: 1px solid var(--qah-border); }
   .qah-system-bar__status { display: flex; align-items: center; gap: .4rem; }
   .qah-system-bar__status i, .qah-navigation-rail__footer i, .dashboard-command-header__trace i { display: inline-block; width: .38rem; height: .38rem; background: var(--qah-accent); }
   .qah-shell__body { display: grid; min-height: calc(100vh - 3rem); grid-template-columns: 10.5rem minmax(0, 1fr); }
-  .qah-navigation-rail { display: flex; flex-direction: column; border-right: 1px solid var(--qah-border-strong); background: #070907; }
+  .qah-navigation-rail { display: flex; flex-direction: column; border-right: 1px solid var(--qah-border-strong); background: var(--qah-surface); }
   .qah-navigation-rail__label { padding: 1rem .9rem .7rem; color: var(--qah-text-subtle); font: .6rem/1 "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .14em; }
   .qah-navigation-rail__links { display: grid; gap: 2px; padding: 0 .55rem; }
   .qah-navigation-rail__link { display: flex; align-items: center; gap: .55rem; min-height: 2.2rem; padding: 0 .55rem; border: 1px solid transparent; color: var(--qah-text-muted); font-size: .64rem; letter-spacing: .035em; }
@@ -632,9 +627,9 @@
 
   .dashboard-command-center { max-width: none; min-height: 100%; padding: 0; background: transparent; overflow: visible; }
   .dashboard-command-center::after { display: none; }
-  .dashboard-command-header { display: grid; grid-template-columns: minmax(0, 1fr) auto; min-height: 7.5rem; padding: .85rem 1rem; border: 1px solid var(--qah-border-strong); background: linear-gradient(90deg, rgba(180,201,107,.065), transparent 38%), #090c09; }
-  .dashboard-command-header::before { content: ""; position: absolute; inset: .45rem; pointer-events: none; border-top: 1px solid rgba(180,201,107,.23); border-left: 1px solid rgba(180,201,107,.23); width: 1rem; height: 1rem; }
-  .dashboard-command-header::after { content: ""; position: absolute; right: .45rem; bottom: .45rem; pointer-events: none; border-right: 1px solid rgba(180,201,107,.23); border-bottom: 1px solid rgba(180,201,107,.23); width: 1rem; height: 1rem; }
+  .dashboard-command-header { display: grid; grid-template-columns: minmax(0, 1fr) auto; min-height: 7.5rem; padding: .85rem 1rem; border: 1px solid var(--qah-border-strong); background: linear-gradient(90deg, theme("colors.qah.accent / 6.5%"), transparent 38%), var(--qah-surface); }
+  .dashboard-command-header::before { content: ""; position: absolute; inset: .45rem; pointer-events: none; border-top: 1px solid theme("colors.qah.accent / 23%"); border-left: 1px solid theme("colors.qah.accent / 23%"); width: 1rem; height: 1rem; }
+  .dashboard-command-header::after { content: ""; position: absolute; right: .45rem; bottom: .45rem; pointer-events: none; border-right: 1px solid theme("colors.qah.accent / 23%"); border-bottom: 1px solid theme("colors.qah.accent / 23%"); width: 1rem; height: 1rem; }
   .dashboard-eyebrow, .dashboard-projects-section__count { font-size: .6rem; letter-spacing: .15em; }
   .dashboard-command-header__title { margin-top: .3rem; font-size: clamp(1.875rem, 2.3vw, 2.125rem); font-weight: 800; letter-spacing: -.02em; text-transform: uppercase; }
   .dashboard-command-header__description { margin-top: .2rem; color: var(--qah-text); font-size: .9rem; font-weight: 600; letter-spacing: -.02em; }
@@ -642,22 +637,22 @@
   .dashboard-command-header__trace span:first-child { display: flex; align-items: center; gap: .4rem; color: var(--qah-text-muted); }
   .dashboard-command-header__trace span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .dashboard-command-header__actions { align-self: end; justify-items: stretch; }
-  .dashboard-action-frame { display: grid; grid-template-columns: auto auto; gap: .35rem; padding: .45rem; border-color: var(--qah-border-pale); background: rgba(3,4,3,.72); }
+  .dashboard-action-frame { display: grid; grid-template-columns: auto auto; gap: .35rem; padding: .45rem; border-color: var(--qah-border-pale); background: theme("colors.qah.bg / 72%"); }
   .dashboard-action-frame__label { display: block; grid-column: 1 / -1; }
   .dashboard-action-frame button { min-height: 2.25rem; padding-inline: .75rem; border-radius: 0; font-size: .7rem; }
   .dashboard-metrics { grid-template-columns: repeat(3, minmax(0,1fr)); gap: .5rem; margin-top: .5rem; }
-  .dashboard-metric-card { min-height: 5.4rem; padding: .65rem .8rem; border-radius: 0; border-color: var(--qah-border-strong); background: linear-gradient(120deg, rgba(180,201,107,.055), transparent 48%), #090c09; }
+  .dashboard-metric-card { min-height: 5.4rem; padding: .65rem .8rem; border-radius: 0; border-color: var(--qah-border-strong); background: linear-gradient(120deg, theme("colors.qah.accent / 5.5%"), transparent 48%), var(--qah-surface); }
   .dashboard-metric-card > div:first-child { margin-bottom: .45rem; }
   .dashboard-metric-card h3 { font: .6rem/1 "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .12em; text-transform: uppercase; }
   .dashboard-metric-card p:not(.dashboard-metric-card__value):not(.dashboard-metric-card__state) { font-size: .65rem; }
   .dashboard-metric-card__value { margin-top: .35rem; font-size: 1.5rem; }.dashboard-metric-card__state { margin-top: .42rem; font-size: .78rem; }
-  .dashboard-projects-section { margin-top: .5rem; padding: 1rem; border: 1px solid var(--qah-border-strong); background: #080b08; }
+  .dashboard-projects-section { margin-top: .5rem; padding: 1rem; border: 1px solid var(--qah-border-strong); background: var(--qah-surface); }
   .dashboard-projects-section__header { margin-bottom: .65rem; padding: 0 0 .65rem; }.dashboard-projects-section__title { font-size: 1.15rem; text-transform: uppercase; letter-spacing: -.04em; }
   .dashboard-empty-state { min-height: 10.5rem; align-items: flex-start; justify-content: center; padding: 1.15rem 1.3rem; text-align: left; border: 1px solid var(--qah-border); background-size: 18px 18px; }
   .dashboard-empty-state__glyph { display: grid; width: 2.4rem; height: 2.4rem; margin-bottom: .75rem; place-items: center; border: 1px solid var(--qah-accent-dim); color: var(--qah-accent); }
   .dashboard-empty-state__icon { display: none; }.dashboard-empty-state__title { font: 700 .78rem/1 "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .1em; }.dashboard-empty-state__description { max-width: 31rem; font-size: .72rem; }.dashboard-empty-state .mt-5 { margin-top: 1rem; }
   .dashboard-project-list { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .5rem; }
-  .dashboard-project-card { min-height: 8.5rem; padding: .8rem; border-radius: 0; border-color: var(--qah-border-strong); background: linear-gradient(145deg, rgba(180,201,107,.05), transparent 55%), #090c09; }
+  .dashboard-project-card { min-height: 8.5rem; padding: .8rem; border-radius: 0; border-color: var(--qah-border-strong); background: linear-gradient(145deg, theme("colors.qah.accent / 5%"), transparent 55%), var(--qah-surface); }
   .dashboard-project-card:hover { transform: none; border-color: var(--qah-accent-dim); }.dashboard-project-card__topline { display: flex; justify-content: space-between; gap: .5rem; margin-bottom: .65rem; color: var(--qah-text-subtle); font: .55rem/1 "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .1em; }.dashboard-project-card__glyph { width: 2rem; height: 2rem; }.dashboard-project-card h3 { font-size: .86rem; }.dashboard-project-card__footer { margin-top: .75rem; padding-top: .5rem; font-size: .61rem; }
 
   @media (max-width: 1199px) {
@@ -675,6 +670,16 @@
 }
 
 @layer utilities {
+  /* Keep keyboard focus visible on utility-styled and native controls. */
+  .qah-shell :focus-visible, dialog :focus-visible {
+    outline: 2px solid var(--qah-accent);
+    outline-offset: 2px;
+  }
+
+  .qah-shell :is(input, select, textarea):where(.border-qah-border, .border-qah-border-strong):enabled {
+    border-color: var(--qah-border-pale);
+  }
+
   /* ── Typography Utilities — Kufic/Glyphic Arabic + Technical Mono ── */
   .font-arabic {
     font-family: "Noto Sans Arabic", system-ui, sans-serif;
@@ -934,3 +939,151 @@
     }
   }
 }
+
+/* Family 5 — record typography and analytical readouts */
+.data-meta, .data-value, .data-summary b, .data-durations dd, .data-channel {
+  font-family: theme("fontFamily.mono");
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.data-meta {
+  color: #75C3A1;
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  letter-spacing: .025em;
+}
+.data-channel {
+  margin-inline-end: .35em;
+  padding-inline-end: .7em;
+  border-inline-end: 1px solid #BCA371;
+  color: #75C3A1;
+}
+.data-report {
+  padding: .7rem .75rem;
+  border-block-start: 1px solid #183F32;
+  background: linear-gradient(105deg, rgb(24 63 50 / 42%), transparent);
+  color: #EAE6DA;
+}
+.data-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: .25rem 1.25rem;
+  margin-block: .25rem .6rem;
+  font-size: .8125rem;
+  font-variant-numeric: tabular-nums;
+}
+.data-summary b { color: #75C3A1; font-size: 1.125rem; }
+.data-durations {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 7.5rem), 1fr));
+  gap: .5rem .75rem;
+}
+.data-durations > div {
+  padding-block-start: .3rem;
+  border-block-start: 1px solid #183F32;
+}
+.data-durations dt, .data-action {
+  color: #BCA371;
+  font-size: .6875rem;
+  letter-spacing: .055em;
+  text-transform: uppercase;
+}
+.data-durations dd { font-size: .875rem; }
+.data-history { padding-block: .25rem; overflow-wrap: anywhere; }
+.data-empty { padding-block: .65rem; color: #EAE6DA; font-size: .875rem; }
+
+@font-face {
+  font-family: Orbitron;
+  src: url("/fonts/orbitron.ttf") format("truetype");
+  font-weight: 400 900;
+  font-display: swap;
+}
+.qah-terminal {
+  container-type: inline-size;
+  min-height: calc(clamp(1.8rem, 4vw, 3.2rem) + 5.18rem);
+}
+@media (max-width: 639px) {
+  .qah-terminal { min-height: calc(1.8rem + 6.442rem); }
+}
+.terminal-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: .15rem .5rem;
+  margin-block: .3rem;
+}
+.terminal-dot, .terminal-cursor { display: inline-block; background: #BCA371; }
+.terminal-dot { width: 5px; height: 5px; border-radius: 50%; }
+.terminal-dot[data-linked="true"] { background: #75C3A1; box-shadow: 0 0 5px #75C3A1; }
+.terminal-cursor { width: .4rem; height: .85rem; background: #75C3A1; }
+.terminal-lines {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  max-width: 26rem;
+  font: 500 .65rem/1.35 theme("fontFamily.mono");
+  color: var(--qah-text-muted);
+}
+.terminal-lines dd { color: #75C3A1; text-align: end; }
+.terminal-sweep {
+  height: 2px;
+  max-width: 26rem;
+  margin-top: .3rem;
+  background: #183F32;
+  overflow: hidden;
+}
+.terminal-sweep::after {
+  content: "";
+  display: block;
+  height: 100%;
+  width: 28%;
+  background: linear-gradient(90deg, transparent, #75C3A1, #BCA371, transparent);
+}
+.qah-dashboard-title {
+  position: relative;
+  color: #EAE6DA;
+  font: 750 clamp(1rem, 11cqi, 3.2rem)/1 Orbitron, theme("fontFamily.mono");
+  letter-spacing: -.055em;
+
+  text-shadow: 1px 0 #183F32;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .qah-dashboard-title::before,
+  .qah-dashboard-title::after {
+    content: attr(data-title) / "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    color: #75C3A1;
+    clip-path: polygon(0 22%,100% 22%,100% 27%,0 27%,0 59%,100% 59%,100% 63%,0 63%);
+    animation: qah-title-signal 520ms steps(1,end), qah-title-burst 7s 520ms steps(1,end) infinite;
+  }
+  .qah-dashboard-title::after {
+    color: #BCA371;
+    clip-path: inset(73% 0 23%);
+    animation-direction: reverse, normal;
+  }
+}
+@keyframes qah-title-signal {
+  0%, 100% { opacity: 0; transform: none; }
+  8% { opacity: .85; transform: translateX(3px); }
+  28% { opacity: .5; transform: translateX(-2px); }
+  48% { opacity: .25; transform: translateX(1px); }
+  66% { opacity: 0; transform: none; }
+}
+
+@keyframes qah-title-burst {
+  0%, 95%, 99%, 100% { opacity: 0; transform: none; }
+  96% { opacity: .85; transform: translateX(-4px); }
+  98% { opacity: .65; transform: translateX(3px); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .terminal-cursor { animation: terminal-blink .7s steps(1,end) 3; }
+  .terminal-lines dd { animation: terminal-flicker 7s linear infinite; }
+  .terminal-sweep::after { animation: terminal-scan 4s linear infinite; }
+}
+@keyframes terminal-blink { 55%, 85% { opacity: .2; } }
+@keyframes terminal-flicker { 0%, 94%, 98%, 100% { opacity: 1; } 96% { opacity: .78; } }
+@keyframes terminal-scan { from { transform: translateX(-100%); } to { transform: translateX(360%); } }

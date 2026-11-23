@@ -1,25 +1,18 @@
-import { cn } from "@/utils/cn";
+import { Check, Circle, LoaderCircle, OctagonAlert, TriangleAlert } from "lucide-react";
 import type { ReactNode } from "react";
+
+const icons = { default: Circle, success: Check, warning: TriangleAlert, danger: OctagonAlert, processing: LoaderCircle };
 
 interface BadgeProps {
   children: ReactNode;
-  variant?: "default" | "success" | "warning" | "danger";
+  variant?: keyof typeof icons;
 }
 
 export function Badge({ children, variant = "default" }: BadgeProps) {
+  const Icon = icons[variant];
   return (
-    <span
-      className={cn(
-        "inline-flex items-center rounded-[2px] px-2.5 py-0.5 text-xs font-medium",
-        {
-          "bg-[var(--qah-surface-raised)] text-[var(--qah-text-muted)]":
-            variant === "default",
-          "bg-[var(--qah-success)]/10 text-[var(--qah-success)]": variant === "success",
-          "bg-[var(--qah-warning)]/10 text-[var(--qah-warning)]": variant === "warning",
-          "bg-[var(--qah-danger)]/10 text-[var(--qah-danger)]": variant === "danger",
-        }
-      )}
-    >
+    <span className={`qah-indicator qah-indicator--${variant}`}>
+      <Icon size={13} aria-hidden="true" />
       {children}
     </span>
   );
